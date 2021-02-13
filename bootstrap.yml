@@ -1,0 +1,104 @@
+---
+
+- hosts: all
+#  remote_user: root
+  gather_facts: true
+  vars_files:
+    - 'vars/vault.yaml'
+  tasks:
+
+  - name: Apt update
+    apt:
+      upgrade: 'yes'
+      update_cache: yes
+      cache_valid_time: 3600
+
+  - name: Ensure user groups exists
+    group:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - "{{ main_username }}"
+      - ansible
+
+  - name: Add main user
+    user:
+      name: "{{ main_username }}"
+      password: "{{ secret_main_user_pass }}"
+      groups: 
+        - "{{ main_username }}"
+        - sudo
+      shell: /bin/bash
+
+  - name: Add ansible user
+    user:
+      name: ansible
+      password: "{{ secret_ansible_pass }}"
+      groups: 
+        - ansible
+        - sudo
+      shell: /bin/bash
+
+  - name: Add sudoers file for ansible
+    copy:
+      src: sudoer_ansible
+      dest: /etc/sudoers.d/ansible
+      owner: root
+      group: root
+      mode: 0440
+
+  - name: SSH Keys - Add Ansible
+    authorized_key:
+      user: ansible
+      state: present
+      key: "{{ secret_ansible_ssh }}"
+  - name: SSH Keys - Add Main User
+    authorized_key:
+      user: "{{ main_username }}"
+      state: present
+      key: "{{ secret_main_user_ssh }}"
+
+  - name: Add GitHub SSH Key
+    copy:
+      dest: /home/{{ main_username }}/.ssh/github
+      owner: "{{ main_username }}"
+      group: "{{ main_username }}"
+      mode: 0600
+      content: "{{ secret_github_ssh }}"
+  - name: Add ssh config
+    copy:
+      dest: /home/{{ main_username }}/.ssh/config
+      owner: "{{ main_username }}"
+      group: "{{ main_username }}"
+      mode: 0664
+      content: |
+        Host github.com
+          IdentityFile ~/.ssh/github
+  - name: Copy Github script
+    template:
+      src: github.sh.j2
+      dest: /home/{{ main_username }}/github.sh
+      owner: "{{ main_username }}"
+      group: "{{ main_username }}"
+      mode: +x
+  - name: Run Github Script
+    command: /bin/bash ./github.sh
+    args:
+      chdir: "/home/{{main_username}}"
+  - name: Remove Github script
+    file:
+      path: /home/{{ main_username }}/github.sh
+      state: absent
+
+  - name: Add hardened SSH config
+    copy:
+      src: sshd_config
+      dest: /etc/ssh/sshd_config
+      owner: root
+      group: root
+      mode: 0600
+
+  - name: Restart ssh
+    service:
+      name: sshd
+      state: restarted

@@ -1,0 +1,11 @@
+---
+- name: ensure hostname is set correctly
+  hostname:
+    name: "{{ hostname }}"
+
+- name: Clone Ansible GitHub Repo
+  git:
+    repo: git@github.com:FuzzyMistborn/coppermind-ansible.git
+    dest: /home/{{ main_username }}/ansible
+    accept_hostkey: true
+    key_file: /home/{{main_username}}/.ssh/github

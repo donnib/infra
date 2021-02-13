@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#### Nextcloud Backup
+# Turn on Maintenance Mode
+docker exec --user www-data Nextcloud php occ maintenance:mode --on
+
+# Backup DB
+now=$(date +"%m_%d_%Y")
+docker exec nextcloud-db sh -c 'exec mysqldump --single-transaction -h localhost -u {{ main_username }} -p{{ secret_nextcloud_db_pass }} nextcloud' > /mnt/Backup/db_backups/nextcloud/nextcloudDB_$now.sql
+
+# Turn off Maintenance Mode
+docker exec --user www-data Nextcloud php occ maintenance:mode --off
+
+#### Bitwarden DB Backup
+now=$(date +"%m_%d_%Y")
+docker exec bitwarden_db sh -c 'exec mysqldump --single-transaction -h localhost -u bitwarden -p{{ secret_bitwarden_db_pass }} bitwarden_rs' > /mnt/Backup/db_backups/bitwarden/bitwardenDB_$now.sql
+
+#### Wallabag Backup
+now=$(date +"%m_%d_%Y")
+docker exec wallabag-db sh -c 'exec mysqldump --single-transaction -h localhost -u root -p{{ secret_wallabag_db_pass }} symfony' > /mnt/Backup/db_backups/wallabag/wallabagDB_$now.sql
+
+#### Hass Backup
+now=$(date +"%m_%d_%Y")
+docker exec HASS-db sh -c 'exec mysqldump --single-transaction -h localhost -u hass -p{{ secret_hass_db_pass }} homeassistant' > /mnt/Backup/db_backups/hass/hassDB_$now.sql
+
+#### Delete Old
+
+find /mnt/Backup/db_backups/ -mtime 3 -type f -delete

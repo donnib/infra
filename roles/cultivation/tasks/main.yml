@@ -1,0 +1,91 @@
+---
+- name: ensure hostname is set correctly
+  hostname:
+    name: "{{ hostname }}"
+
+- name: Remove AppArmor
+  apt:
+    name: apparmor
+    state: absent
+
+- name: create config directories
+  file:
+    path: "/home/{{main_username}}/{{ item }}"
+    state: directory
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+  loop:
+    - db_backup
+    - scripts
+    - docker
+    - docker/dashmachine
+    - docker/bitwarden
+    - docker/diun
+    - docker/element
+    - docker/freshrss
+    - docker/nextcloud_docker
+    - docker/nginx
+    - docker/wallabag
+    - docker/unifi
+    - docker/snapdrop
+
+- name: Create duckdns file
+  copy:
+    dest: /home/{{ main_username }}/scripts/duck.sh
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+    content: "{{ secret_duckdns_config }}"
+
+- name: Copy backup script templates
+  template:
+    src: "{{item.src}}"
+    dest: /home/{{ main_username }}/scripts/{{item.dest}}
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+  with_items:
+    - { src: 'media_backup.sh.j2', dest: 'media_backup.sh' }
+
+#### DIUN
+- name: Copy DIUN Config Template
+  template:
+    src: diun_config.yml.j2
+    dest: /home/{{ main_username }}/docker/diun/config.yml
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+
+#### Restore Folders
+- name: restore folders from backup
+  copy:
+    src: /mnt/Backup/{{item.src}}
+    dest: "/home/{{ main_username }}/{{item.dest}}"
+    remote_src: true
+    mode: preserve
+  with_items:
+    - { src: 'docker', dest: 'docker' }
+
+#### Cronjobs
+- name: "Main User Cronjobs"
+  cron:
+    user: "{{ main_username }}"
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  with_items:
+    - { job: "/home/{{ main_username }}/scripts/duck.sh >/dev/null 2>&1", name: "DuckDNS", hour: "*", minute: "*/5", weekday: "*" }
+
+- name: "Root Cronjobs"
+  cron:
+    user: root
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  with_items:
+    - { job: "/home/{{ main_username }}/scripts/media_backup.sh", name: "Media Backup", hour: "0", minute: "5", weekday: "*" }

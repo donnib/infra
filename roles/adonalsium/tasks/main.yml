@@ -1,0 +1,83 @@
+---
+
+### Basic Setup
+- name: Install Proxmoxer
+  pip:
+    name: proxmoxer
+
+- name: Ensure user groups exists
+  group:
+    name: "{{ main_username }}"
+    state: present
+
+- name: Add main user
+  user:
+    name: "{{ main_username }}"
+    password: "{{ secret_main_user_pass }}"
+    groups:
+      - "{{ main_username }}"
+    shell: /bin/bash
+
+- name: create main user directories
+  file:
+    path: /home/{{ main_username }}/{{ item }}
+    state: directory
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+  loop:
+    - docker
+    - docker/diun
+    - docker/scrutiny
+
+- name: Copy backup scripts
+  copy:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+    mode: +x
+  loop:
+    - { src: "backup.sh", dest: "/root/backup.sh" }
+    - { src: "media_backup.sh", dest: "/home/{{ main_username }}/media_backup.sh" }
+
+### Wireguard
+#- name: Install Wireguard
+#  include: wireguard.yml
+
+### DIUN
+- name: Copy DIUN Config Template
+  template:
+    src: diun_config.yml.j2
+    dest: /home/{{ main_username }}/docker/diun/config.yml
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+
+### Infrastructure
+#- name: Set up disks/mounts
+#  include: disks.yml
+
+- name: Set up containers/virtual machines
+  include: infrastructure.yml
+
+### Cron
+- name: "Main User Cronjobs"
+  cron:
+    user: "{{ main_username }}"
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  with_items:
+    - { job: "docker exec scrutiny /scrutiny/bin/scrutiny-collector-metrics run", name: "Scrutiny", hour: "*/6", minute: "0", weekday: "*" }
+
+- name: "Root Cronjobs"
+  cron:
+    user: root
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  loop:
+    - { job: "/home/{{ main_username }}/media_backup.sh", name: "Media Backup", hour: "0", minute: "30", weekday: "*" }

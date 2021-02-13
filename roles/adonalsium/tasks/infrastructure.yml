@@ -1,0 +1,190 @@
+---
+- name: Create Dominon CT
+  proxmox:
+    vmid: '200'
+    hostname: Dominon
+    unprivileged: true
+    onboot: true
+    state: present
+    node: adonalsium
+    storage: local-lvm
+    disk: '10'
+    cores: '2'
+    memory: '1024'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.11/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
+
+- name: Create Endowment CT
+  proxmox:
+    vmid: '201'
+    hostname: Endowment
+    unprivileged: false
+    onboot: true
+    state: present
+    node: adonalsium
+    storage: local-lvm
+    disk: '125'
+    cores: '4'
+    memory: '4096'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.12/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-18.04-standard_18.04.1-1_amd64.tar.gz'
+    mounts: '{"mp0":"/mnt/Media,mp=/mnt/Media/","mp1":"/mnt/Backup/Adonalsium/endowment,mp=/mnt/Backup/","mp2":"/mnt/Synology_Media,mp=/mnt/Synology_Media/","mp3":"/mnt/Synology_Photos,mp=/mnt/Synology_Photos/"}'
+    #Need to add nesting
+
+- name: Create Autonomy CT
+  proxmox:
+    vmid: '202'
+    hostname: Autonomy
+    unprivileged: false
+    onboot: true
+    state: present
+    node: adonalsium
+    storage: local-lvm
+    disk: '50'
+    cores: '4'
+    memory: '3072'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.13/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
+    mounts: '{"mp0":"/mnt/Media,mp=/mnt/Media/,ro=1","mp1":"/mnt/Backup/Adonalsium/autonomy,mp=/mnt/Backup/"}'
+    #Need to add nesting
+
+- name: Create Cultivation CT
+  proxmox:
+    vmid: '203'
+    hostname: Cultivation
+    unprivileged: false
+    onboot: true
+    state: present
+    node: adonalsium
+    storage: local-lvm
+    disk: '40'
+    cores: '2'
+    memory: '1024'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.14/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
+    mounts: '{"mp0":"/mnt/Backup/Adonalsium/cultivation,mp=/mnt/Backup/"}'
+    #Need to add nesting
+
+- name: Create Preservation CT
+  proxmox:
+    vmid: '204'
+    hostname: Preservation
+    onboot: true
+    unprivileged: false
+    state: present
+    node: adonalsium
+    storage: local-lvm
+    disk: '25'
+    cores: '1'
+    memory: '512'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.15/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
+    mounts: '{"mp0":"/mnt/Backup/Adonalsium/preservation,mp=/mnt/Backup/"}'
+    #Need to add nesting
+
+- name: Create Honor CT
+  proxmox:
+    vmid: '205'
+    hostname: Honor
+    onboot: true
+    unprivileged: false
+    state: present
+    node: adonalsium
+    storage: local-lvm
+    disk: '10'
+    cores: '1'
+    memory: '512'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.16/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
+
+- name: Create Valor CT
+  proxmox:
+    vmid: '206'
+    hostname: Valor
+    onboot: false
+    unprivileged: false
+    node: adonalsium
+    state: present
+    storage: local-lvm
+    disk: '10'
+    cores: '1'
+    memory: '512'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.17/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
+
+- name: Create Mercy CT
+  proxmox:
+    vmid: '207'
+    hostname: Mercy
+    onboot: true
+    unprivileged: false
+    node: adonalsium
+    state: present
+    storage: local-lvm
+    disk: '10'
+    cores: '1'
+    memory: '512'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.18/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-18.04-standard_18.04-1_amd64.tar.gz'
+    mounts: '{"mp0":"/mnt/Backup/Adonalsium/mercy,mp=/mnt/Backup/"}'
+
+- name: Create Odium CT
+  proxmox:
+    vmid: '208'
+    hostname: Odium
+    onboot: false
+    unprivileged: false
+    node: adonalsium
+    state: present
+    storage: local-lvm
+    disk: '25'
+    cores: '2'
+    memory: '2048'
+    swap: '512'
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: "{{ adonalsium_ip }}"
+    pubkey: "{{ secret_proxmox_ct_ssh }}"
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.19/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
+    #Need to add nesting

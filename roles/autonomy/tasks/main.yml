@@ -1,0 +1,243 @@
+---
+- name: ensure hostname is set correctly
+  hostname:
+    name: "{{ hostname }}"
+
+- name: Remove AppArmor
+  apt:
+    name: apparmor
+    state: absent
+
+- name: create config directories
+  file:
+    path: /home/{{ main_username }}/{{ item }}
+    state: directory
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+  loop:
+    - docker
+    - scripts
+    - db_backup
+    - hass_docker
+    - hass_docker_beta
+    - docker/hass_docker
+    - docker/hass_docker/deconz
+    - docker/hass_docker/mqtt
+    - docker/hass_docker/nodered
+    - docker/hass_docker/grafana
+    - docker/iobroker
+    - docker/ozw
+    - docker/tasmota
+    - docker/deepstack
+    - docker/diun
+
+#### Scripts
+
+- name: Create traffic bash file
+  copy:
+    dest: /home/{{ main_username }}/scripts/traffic.sh
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+    content: |
+      #!/bin/bash
+      {{ secret_traffic_code }}
+
+- name: Create weather cast bash file
+  copy:
+    dest: /home/{{ main_username }}/scripts/cast_weather.sh
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+    content: "{{ secret_catt_weather }}"
+
+- name: Create traffic cast bash file
+  copy:
+    dest: /home/{{ main_username }}/scripts/cast_weather.sh
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+    content: "{{ secret_catt_traffic }}"
+
+- name: Copy scripts
+  copy:
+    src: scripts/{{item.path}}
+    dest: /home/{{ main_username }}/scripts/{{item.path}}
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: "{{item.mode}}"
+  with_items:
+    - { path: "auth_commands.sh", mode: "+x" }
+    - { path: "rtl2mqtt.py", mode: "0664" }
+
+- name: Copy backup script templates
+  template:
+    src: "{{item.src}}"
+    dest: /home/{{ main_username }}/scripts/{{item.dest}}
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+  with_items:
+    - { src: 'media_backup.sh.j2', dest: 'media_backup.sh' }
+    - { src: 'cast_frontdoor.sh.j2', dest: 'cast_frontdoor.sh' }
+    - { src: 'cast_media.sh.j2', dest: 'cast_media.sh' }
+    - { src: 'cast_stop.sh.j2', dest: 'cast_stop.sh' }
+
+### CATT
+
+- name: Install CATT python package
+  become: true
+  become_user: "{{ main_username }}"
+  pip:
+    name: catt
+    executable: /usr/bin/pip3
+
+- name: Set CATT default
+  become: true
+  become_user: "{{ main_username }}"
+  command: /home/{{main_username}}/.local/bin/catt -d "Kitchen Hub" set_default
+
+#### RTL_433
+
+- name: Copy RTL_433 script
+  template:
+    src: rtl_433.sh.j2
+    dest: /home/{{ main_username }}/rtl_433.sh
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+
+- name: Copy rtl2mqtt config template
+  template:
+    src: config.py.j2
+    dest: /home/{{ main_username }}/scripts/config.py
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+
+- name: Run RTL433 script
+  command: /bin/bash ./rtl_433.sh
+  args:
+    chdir: "/home/{{main_username}}"
+
+- name: Remove RTL433 script
+  file:
+    path: /home/{{ main_username }}/rtl_433.sh
+    state: absent
+
+- name: Copy RTL433 service file
+  template:
+    src: "{{item.src}}"
+    dest: /etc/systemd/system/{{item.dest}}
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: 0644
+  with_items:
+    - { src: 'rtl433.service.j2', dest: 'rtl433.service' }
+
+- name: Enable RTL433 service
+  systemd:
+    enabled: true
+    daemon-reload: true
+    name: "{{item}}"
+  loop:
+    - rtl433
+
+- name: Start RTL433 service
+  service:
+    name: rtl433
+    state: started
+
+#### NUT Server
+
+- name: Copy nut folder
+  copy:
+    src: etc/nut/{{item}}
+    dest: /etc/nut/{{item}}
+    owner: root
+    group: nut
+    mode: 0640
+  with_items:
+    - 'nut.conf'
+    - 'ups.conf'
+    - 'upsd.conf'
+    - 'upsd.users'
+
+- name: Copy NUT script
+  copy:
+    src: nut.sh
+    dest: /home/ansible
+    mode: +x
+
+- name: Run NUT script
+  command: /bin/bash ./nut.sh
+  args:
+    chdir: "/home/ansible"
+    creates: "/home/ansible/nut.sh"
+
+#### DIUN
+- name: Copy DIUN Config Template
+  template:
+    src: diun_config.yml.j2
+    dest: /home/{{ main_username }}/docker/diun/config.yml
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+
+#### HASS Git
+
+- name: Clone HASS GitHub Repo
+  git:
+    repo: git@github.com:FuzzyMistborn/hass-docker.git
+    dest: /home/{{ main_username }}/hass_docker
+    accept_hostkey: true
+    key_file: /home/{{main_username}}/.ssh/github
+  become_user: "{{ main_username }}"
+
+- name: Clone NodeRed GitHub Repo
+  git:
+    repo: git@github.com:FuzzyMistborn/hass-nodered.git
+    dest: /home/{{ main_username }}/docker/hass_docker/nodered
+    accept_hostkey: true
+    key_file: /home/{{main_username}}/.ssh/github
+  become_user: "{{ main_username }}"
+
+### Backup Restore
+
+- name: restore folders from backup
+  copy:
+    src: /mnt/Backup/{{item.src}}
+    dest: "/home/{{ main_username }}/{{item.dest}}"
+    remote_src: true
+    mode: preserve
+  with_items:
+    - { src: 'docker', dest: 'docker' }
+    - { src: 'hass_docker_beta', dest: 'hass_docker_beta' }
+    - { src: 'hass_docker', dest: 'hass_docker' }
+
+### Cronjobs
+- name: "Main User Cronjobs"
+  cron:
+    user: "{{ main_username }}"
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  loop:
+    - { job: "~/scripts/traffic.sh", name: "Traffic AM", hour: "7-8,16-18", minute: "*/10", weekday: "1-5" }
+    - { job: "~/scripts/traffic.sh", name: "Traffic PM", hour: "9-15", minute: "*/30", weekday: "1-5" }
+    - { job: "~/docker/hass_docker/nodered/github_cron.sh", name: "NodeRed Github", hour: "23", minute: "0", weekday: "*" }
+    - { job: "~/git/coppermind-backup/cron_git.sh", name: "Coppermind Github", hour: "0", minute: "15", weekday: "*" }
+    - { job: "docker container restart grafana", name: "Restart Grafana", hour: "23", minute: "30", weekday: "*" }
+
+- name: "Root Cronjobs"
+  cron:
+    user: root
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  loop:
+    - { job: "/home/{{ main_username }}/scripts/media_backup.sh", name: "Media Backup", hour: "0", minute: "5", weekday: "*" }

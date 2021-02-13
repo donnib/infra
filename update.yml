@@ -1,0 +1,16 @@
+---
+
+- hosts: shards
+  tasks:
+    - name: update all packages
+      become: true
+      package:
+        name: '*'
+        state: latest
+  
+- hosts: all
+  become: true
+  vars_files:
+  - 'vars/vault.yaml'
+  roles:
+    - role: ironicbadger.ansible_role_docker_compose_generator

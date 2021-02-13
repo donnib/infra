@@ -1,0 +1,121 @@
+---
+  - hosts: all
+    become: true
+    tasks:
+      - name: Remove Ubuntu motd spam
+        file:
+          path: "/etc/update-motd.d/{{ item }}"
+          state: absent
+        loop:
+          - 80-livepatch
+          - 95-hwe-eol
+          - 50-motd-news
+          - 10-help-text
+        when: ansible_distribution == 'Ubuntu'
+
+  - hosts: adonalsium
+    become: true
+    vars_files:
+    - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: geerlingguy.pip
+      - role: adonalsium
+      - role: geerlingguy.nfs
+      - role: geerlingguy.docker
+      - role: ironicbadger.ansible_role_docker_compose_generator
+      - role: ironicbadger.ansible_role_snapraid
+      - role: ironicbadger.ansible_role_proxmox_nag_removal
+
+  - hosts: dominion
+    become: true
+    vars_files:
+    - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: dominion
+#      - role: geerlingguy.ntp
+
+  - hosts: endowment
+    become: true
+    vars_files:
+    - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: endowment
+      - role: install_fail2ban
+      - role: geerlingguy.docker
+      - role: geerlingguy.pip
+#      - role: geerlingguy.ntp
+      - role: ironicbadger.ansible_role_docker_compose_generator
+
+  - hosts: autonomy
+    become: true
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: geerlingguy.docker
+      - role: geerlingguy.pip
+      - role: autonomy
+      - role: install_fail2ban
+#      - role: geerlingguy.ntp
+      - role: ironicbadger.ansible_role_docker_compose_generator
+
+  - hosts: cultivation
+    become: true
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: cultivation
+      - role: install_fail2ban
+      - role: geerlingguy.docker
+      - role: geerlingguy.pip
+#      - role: geerlingguy.ntp
+      - role: ironicbadger.ansible_role_docker_compose_generator
+
+  - hosts: preservation
+    become: true
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: preservation
+
+  - hosts: honor
+    become: true
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: honor
+
+  - hosts: valor
+    become: true
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: valor
+
+  - hosts: mercy
+    become: true
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: grog.package
+      - role: geerlingguy.pip
+      - role: mercy
+
+  - hosts: odium
+    become: true
+    vars_files:
+      - 'vars/vault.yaml'
+    roles:
+      - role: odium
+      - role: geerlingguy.docker
+      - role: geerlingguy.pip
+#      - role: geerlingguy.ntp
+      - role: grog.package
+      - role: ironicbadger.ansible_role_docker_compose_generator

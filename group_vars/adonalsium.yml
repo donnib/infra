@@ -1,0 +1,136 @@
+---
+adonalsium_ip: 192.168.30.10
+hostname: adonalsium
+
+### Install packages with grog.package
+package_list:
+  - name: mergerfs
+  - name: pve-headers
+  - name: git
+#  - name: nfs-kernel-server
+#  - name: nfs-client
+
+mergerfs_mount:
+  - { path: /mnt/Media }
+
+parity_disks:
+  - { path: /mnt/parity1, source: /dev/disk/by-id/ata-ST8000NM0055-1RM112_ZA11KJXC-part1, fs: ext4, opts: defaults, content: false }
+
+data_disks:
+  - { path: /mnt/disk1, source: /dev/disk/by-id/ata-ST8000NM0055-1RM112_ZA11KKDB-part1, fs: ext4, opts: defaults, content: true }
+  - { path: /mnt/disk2, source: /dev/disk/by-id/ata-ST8000NM0055-1RM112_ZA11KW0F-part1, fs: ext4, opts: defaults, content: true }
+  - { path: /mnt/disk3, source: /dev/disk/by-id/ata-ST8000NM0055-1RM112_ZA11KW4B-part1, fs: ext4, opts: defaults, content: true }
+  - { path: /mnt/disk4, source: /dev/disk/by-id/ata-ST4000NM0024-1HT178_Z4F06WRN-part1, fs: ext4, opts: defaults, content: true }
+  - { path: /mnt/disk5, source: /dev/disk/by-id/ata-WDC_WD60EFRX-68MYMN1_WD-WX21D25R5VX9-part1, fs: ext4, opts: defaults, content: true }
+  - { path: /mnt/disk5, source: /dev/disk/by-id/ata-WDC_WD60EFRX-68MYMN1_WD-WX31D25040NC-part1, fs: ext4, opts: defaults, content: true }
+
+external_disks:
+  - { path: /media/small_external_hdd, source: /dev/disk/by-uuid/681EA7BB1EA78124, fs: ntfs, opts: defaults, content: true }
+
+synology_mountpoints:
+  - { path: "/mnt/Backup", source: "192.168.30.25:/volume1/Backup/", fs: nfs, opts: "rw,sync" }
+  - { path: "/mnt/Synology_Media", source: "192.168.30.25:/volume1/Media/", fs: nfs, opts: "rw,sync" }
+  - { path: "/mnt/Synology_Photos", source: "192.168.30.25:/volume1/photo/", fs: nfs, opts: "rw,sync" }
+
+fstab_mergerfs:
+  - { source: "/mnt/disk*", mountpoint: "/mnt/Media", fs: fuse.mergerfs, opts: "direct_io,defaults,allow_other,minfreespace=50G,fsname=mergerfs" }  
+
+### NFS Setup
+nfs_exports: [ "/mnt/Media *(rw,sync,no_root_squash,no_subtree_check)" ]
+
+### Snapraid Config
+snapraid_force_install: false
+snapraid_email_address: "{{ secret_snapraid_email_address }}" 
+snapraid_gmail_pass: "{{ secret_snapraid_email_pass }}"
+snapraid_email_address_from: "{{ secret_snapraid_email_from }}"
+snapraid_email_address_to: "{{ secret_snapraid_email_to }}"
+snapraid_smtp_host: "{{ secret_snapraid_smtp_host }}"
+snapraid_smtp_port: 465
+snapraid_use_ssl: true
+snapraid_run_command: "python3 {{ snapraid_run_bin }} -c {{ snapraid_run_conf}}"
+snapraid_cron_jobs:
+  - { job: '{{ snapraid_run_command }}', name: 'snapraid_runner', weekday: '*', hour: '04' }
+snapraid_config_excludes:
+  - "*.unrecoverable"
+  - "/tmp/"
+  - "/lost+found/"
+  - "downloads/"
+  - "appdata/"
+  - "*.!sync"
+  - ".AppleDouble"
+  - "._AppleDouble"
+  - ".DS_Store"
+  - "._.DS_Store"
+  - ".Thumbs.db"
+  - ".fseventsd"
+  - ".Spotlight-V100"
+  - ".TemporaryItems"
+  - ".Trashes"
+  - ".AppleDB"
+
+### Docker-Compose with ironicbadger.docker_compose_generator
+appdata_path: "/home/{{ main_username }}/docker"
+containers:
+  ###
+  - service_name: diun
+    container_name: diun
+    active: true
+    image: crazymax/diun:latest
+    restart: always
+    labels:
+      - "diun.enable=true"
+      - "diun.regopt=docker.io"
+    volumes:
+      - "{{ appdata_path }}/diun/data:/data"
+      - "{{ appdata_path }}/diun/diun.yml:/diun.yml:ro"
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - LOG_LEVEL=info
+      - LOG_JSON=false
+    hostname:  "{{ hostname }}"
+    include_global_env_vars: true
+  ###
+  - service_name: portainer
+    container_name: portainer
+    active: true
+    image: portainer/portainer-ce
+    restart: always
+    mem_limit: 200M
+    ports:
+      - 9000:9000
+      - 8000:8000
+    labels:
+      - "diun.enable=true"
+      - "diun.regopt=docker.io"
+    volumes:
+      - /srv/docker/portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - AGENT_SECRET={{secret_portainer_key}}
+    include_global_env_vars: false
+  ###
+  - service_name: scrutiny
+    container_name: scrutiny
+    active: true
+    image: analogj/scrutiny
+    restart: always
+    ports:
+      - 8080:8080
+    labels:
+      - "diun.enable=true"
+      - "diun.regopt=docker.io"
+    volumes:
+      - "{{ appdata_path }}/scrutiny:/config"
+      - /run/udev:/run/udev:ro
+    devices:
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+      - /dev/sdc:/dev/sdc
+      - /dev/sdd:/dev/sdd
+      - /dev/sde:/dev/sde
+      - /dev/sdg:/dev/sdg
+      - /dev/sdh:/dev/sdh
+      - /dev/sdi:/dev/sdi
+    cap_add:
+      - SYS_RAWIO
+    include_global_env_vars: false

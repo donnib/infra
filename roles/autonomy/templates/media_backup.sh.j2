@@ -1,0 +1,7 @@
+#!/bin/bash
+
+sudo mount /mnt/Backup
+
+rsync -Aavx --progress --delete /home/{{ main_username }}/docker/ /mnt/Backup/docker
+rsync -Aavx --progress --delete /home/{{ main_username }}/hass_docker /mnt/Backup/hass_docker
+rsync -Aavx --progress --delete /home/{{ main_username }}/hass_docker_beta /mnt/Backup/hass_docker_beta

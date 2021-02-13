@@ -1,0 +1,66 @@
+---
+- name: ensure hostname is set correctly
+  hostname:
+    name: "{{ hostname }}"
+
+- name: Remove AppArmor
+  apt:
+    name: apparmor
+    state: absent
+
+- name: create config directories
+  file:
+    path: "/home/{{main_username}}/{{ item }}"
+    state: directory
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+  loop:
+    - docker
+    - docker/bitwarden_db
+    - docker/diun
+    - docker/nextcloud_db
+    - docker/wallabag_db
+    - docker/hass_db
+    - docker/influxdb
+    - scripts
+
+#### DIUN
+- name: Copy DIUN Config Template
+  template:
+    src: diun_config.yml.j2
+    dest: /home/{{ main_username }}/docker/diun/config.yml
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+
+- name: Copy db backup script template
+  template:
+    src: "{{item.src}}"
+    dest: /home/{{ main_username }}/scripts/{{item.dest}}
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+  with_items:
+    - { src: 'db_backup.sh.j2', dest: 'db_backup.sh' }
+
+#### Restore Folders
+- name: restore folders from backup
+  copy:
+    src: /mnt/Backup/{{item.src}}
+    dest: "/home/{{ main_username }}/{{item.dest}}"
+    remote_src: true
+    mode: preserve
+  with_items:
+    - { src: 'db_backups', dest: 'db_backups' }
+
+#### Cronjobs
+- name: "Root Cronjobs"
+  cron:
+    user: root
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  loop:
+    - { job: "/home/{{ main_username }}/scripts/db_backup.sh", name: "DB Backup", hour: "0", minute: "1", weekday: "*" }

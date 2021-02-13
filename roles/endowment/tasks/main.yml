@@ -1,0 +1,92 @@
+---
+- name: ensure hostname is set correctly
+  hostname:
+    name: "{{ hostname }}"
+    
+- name: create directories
+  file:
+    path: "/home/{{main_username}}/{{ item }}"
+    state: directory
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+  loop:
+    - scripts
+    - docker
+    - docker/emby
+    - docker/sabnzbd
+    - docker/sonarr
+    - docker/radarr
+    - docker/radarr_uhd
+    - docker/hydra2
+    - docker/duplicati
+    - docker/diun
+    - nzbdownloads
+
+- name: Remove AppArmor
+  apt:
+    name: apparmor
+    state: absent
+
+- name: Copy scripts
+  copy:
+    src: "{{item.path}}"
+    dest: /home/{{ main_username }}/scripts/{{item.path}}
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: "{{item.mode}}"
+  with_items:
+    - { path: "nextcloud_cron.sh", mode: "+x" }
+
+- name: Copy backup script templates
+  template:
+    src: "{{item.src}}"
+    dest: /home/{{ main_username }}/scripts/{{item.dest}}
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: +x
+  with_items:
+    - { src: 'media_backup.sh.j2', dest: 'media_backup.sh' }
+
+#### DIUN
+- name: Copy DIUN Config Template
+  template:
+    src: diun_config.yml.j2
+    dest: /home/{{ main_username }}/docker/diun/config.yml
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+
+#### Restore Folders
+- name: restore folders from backup
+  copy:
+    src: /mnt/Backup/{{item.src}}
+    dest: "/home/{{ main_username }}/{{item.dest}}"
+    remote_src: true
+    mode: preserve
+  with_items:
+    - { src: 'docker', dest: 'docker' }
+
+#### Cronjobs
+- name: "Main User Cronjobs"
+  cron:
+    user: "{{ main_username }}"
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  loop:
+    - { job: "docker container restart emby", name: "Restart Emby", hour: "2", minute: "30", weekday: "*" }
+    - { job: "/home/{{ main_username }}/scripts/nextcloud_cron.sh", name: "Nextcloud", hour: "*", minute: "*/5", weekday: "*" }
+
+- name: "Root Cronjobs"
+  cron:
+    user: root
+    name: "{{ item.name }}"
+    job: "{{ item.job }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    weekday: "{{ item.weekday }}"
+    state: present
+  loop:
+    - { job: "/home/{{ main_username }}/scripts/media_backup.sh", name: "Media Backup", hour: "0", minute: "5", weekday: "*" }

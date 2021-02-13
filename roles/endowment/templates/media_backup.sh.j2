@@ -1,0 +1,13 @@
+#!/bin/bash
+
+sudo mount /mnt/Synology_Media
+sudo mount /mnt/Backup
+sudo mount /mnt/Synology_Photos
+
+rsync -rtDvz --progress --delete --exclude "*@eaDir*" /mnt/Media/Photos/ /mnt/Synology_Photos
+rsync -Aavx --progress --delete /mnt/Media/Photos/ /mnt/Synology_Media/Photos
+rsync -Aavx --progress --delete /mnt/Media/Music/ /mnt/Synology_Media/Music
+rsync -Aavx --progress --delete /mnt/Media/Audiobooks/ /mnt/Synology_Media/Audiobooks
+
+rsync -Aavx --progress --delete /mnt/Media/Files/ /mnt/Backup/Files
+rsync -Aavx --progress --delete /home/{{ main_username }}/docker/ /mnt/Backup/docker

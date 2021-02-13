@@ -1,0 +1,10 @@
+[sshd]
+enabled = true
+action = iptables-allports
+         telegram
+port = 7422
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+bantime = 3600
+findtime = 600

@@ -10,7 +10,7 @@
     storage: local-lvm
     disk: '10'
     cores: '2'
-    memory: '1024'
+    memory: '512'
     swap: '512'
     api_user: root@pam
     api_password: "{{ secret_proxmox_pass }}"
@@ -29,7 +29,7 @@
     node: adonalsium
     storage: local-lvm
     disk: '125'
-    cores: '4'
+    cores: '6'
     memory: '4096'
     swap: '512'
     api_user: root@pam
@@ -51,8 +51,8 @@
     node: adonalsium
     storage: local-lvm
     disk: '50'
-    cores: '4'
-    memory: '3072'
+    cores: '6'
+    memory: '4096'
     swap: '512'
     api_user: root@pam
     api_password: "{{ secret_proxmox_pass }}"
@@ -73,8 +73,8 @@
     node: adonalsium
     storage: local-lvm
     disk: '40'
-    cores: '2'
-    memory: '1024'
+    cores: '3'
+    memory: '2048'
     swap: '512'
     api_user: root@pam
     api_password: "{{ secret_proxmox_pass }}"
@@ -96,7 +96,7 @@
     storage: local-lvm
     disk: '25'
     cores: '1'
-    memory: '512'
+    memory: '1024'
     swap: '512'
     api_user: root@pam
     api_password: "{{ secret_proxmox_pass }}"

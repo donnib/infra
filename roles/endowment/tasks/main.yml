@@ -1,4 +1,5 @@
 ---
+
 - name: ensure hostname is set correctly
   hostname:
     name: "{{ hostname }}"

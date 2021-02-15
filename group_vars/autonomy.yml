@@ -58,8 +58,6 @@ containers:
       - /etc/localtime:/etc/localtime:ro
       - /mnt/Media:/mnt/Media:ro
     depends_on:
-      - hass_db
-      - influx_db
       - mqtt
     include_global_env_vars: false
   ###

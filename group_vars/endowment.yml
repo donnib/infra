@@ -178,8 +178,6 @@ containers:
       - "diun.enable=true"
       - "diun.regopt=docker.io"
     mem_limit: 1000M
-    depends_on:
-      - nextcloud-db
     include_global_env_vars: true
   ###
   - service_name: portainer_agent

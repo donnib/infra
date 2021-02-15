@@ -99,8 +99,6 @@ containers:
     labels:
       - "diun.enable=true"
       - "diun.regopt=docker.io"
-    depends_on:
-      - wallabag-db
     include_global_env_vars: true
   ###
   - service_name: nginx

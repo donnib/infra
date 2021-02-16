@@ -82,6 +82,9 @@
     roles:
       - role: grog.package
       - role: preservation
+      - role: geerlingguy.docker
+      - role: geerlingguy.pip
+      - role: ironicbadger.ansible_role_docker_compose_generator
 
   - hosts: honor
     become: true

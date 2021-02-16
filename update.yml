@@ -7,10 +7,9 @@
       package:
         name: '*'
         state: latest
-  
-- hosts: all
-  become: true
+
+- hosts: docker
   vars_files:
-  - 'vars/vault.yaml'
+    - 'vars/vault.yaml'
   roles:
     - role: ironicbadger.ansible_role_docker_compose_generator

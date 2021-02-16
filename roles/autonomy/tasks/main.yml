@@ -142,13 +142,9 @@
     enabled: true
     daemon-reload: true
     name: "{{item}}"
+    state: started
   loop:
     - rtl433
-
-- name: Start RTL433 service
-  service:
-    name: rtl433
-    state: started
 
 #### NUT Server
 

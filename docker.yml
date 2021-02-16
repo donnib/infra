@@ -1,0 +1,26 @@
+---
+
+- hosts: "{{host}}"
+  become: true
+  vars_files:
+    - 'vars/vault.yaml'
+  vars_prompt:
+    - name: host
+      prompt: Which host?
+      private: no
+    - name: containers
+      prompt: Which containers?
+      private: no
+  tasks:
+    - name: Pull image
+      community.docker.docker_compose:
+        project_name: "{{item}}"
+        project_src: /home/{{main_username}}/
+        pull: yes
+        state: present
+        services: "{{item}}"
+      with_items:
+        - "{{ containers }}"
+    
+    - name: Docker prune
+      command: docker image prune -f

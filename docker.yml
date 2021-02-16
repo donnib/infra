@@ -12,15 +12,15 @@
       prompt: Which containers?
       private: no
   tasks:
-    - name: Pull image
-      community.docker.docker_compose:
-        project_name: "{{item}}"
-        project_src: /home/{{main_username}}/
-        pull: yes
-        state: present
-        services: "{{item}}"
-      with_items:
-        - "{{ containers }}"
-    
+    - name: Docker Pull
+      command: "docker-compose pull {{containers}}"
+      args:
+        chdir: /home/{{main_username}}/
+
+    - name: Docker Update
+      command: "docker-compose up -d {{containers}}"
+      args:
+        chdir: /home/{{main_username}}/
+
     - name: Docker prune
-      command: docker image prune -f
+      command: "docker image prune -f"

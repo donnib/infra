@@ -14,8 +14,8 @@ package_list:
 appdata_path: "/home/{{ main_username }}/docker"
 containers:
   ###
-  - service_name: hass_db
-    container_name: HASS-db
+  - service_name: hass-db
+    container_name: hass-db
     active: true
     image: mariadb
     restart: always
@@ -32,8 +32,8 @@ containers:
       - "diun.regopt=docker.io"
     include_global_env_vars: false
   ###
-  - service_name: influx_db
-    container_name: influx_db
+  - service_name: influx-db
+    container_name: influx-db
     active: true
     image: influxdb
     restart: always
@@ -47,8 +47,8 @@ containers:
     mem_limit: 500M
     include_global_env_vars: false
   ###
-  - service_name: bitwarden_db
-    container_name: bitwarden_db
+  - service_name: bitwarden-db
+    container_name: bitwarden-db
     active: true
     image: mariadb
     restart: always

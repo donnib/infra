@@ -27,8 +27,12 @@ mercy:
 odium:
 	ansible-playbook -b run.yml --limit odium --vault-password-file .vault-password
 
+### Updates
 update:
 	ansible-playbook update.yml --limit shards --vault-password-file .vault-password
+
+docker:
+	ansible-playbook docker.yml --vault-password-file .vault-password
 
 ### Vault
 decrypt:

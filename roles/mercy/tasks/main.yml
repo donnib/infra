@@ -1,7 +1,4 @@
 ---
-- name: ensure hostname is set correctly
-  hostname:
-    name: "{{ hostname }}"
 
 - name: create config directories
   file:

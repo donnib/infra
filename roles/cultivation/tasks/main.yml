@@ -1,12 +1,15 @@
 ---
-- name: ensure hostname is set correctly
-  hostname:
-    name: "{{ hostname }}"
 
-- name: Remove AppArmor
-  apt:
-    name: apparmor
-    state: absent
+- name: Modify restart timeout
+  lineinfile:
+    path: /etc/systemd/system/network-online.target.wants/networking.service
+    regexp: "^TimeoutStartSec*"
+    line: "TimeoutStartSec=5sec"
+
+#- name: Remove AppArmor
+#  apt:
+#    name: apparmor
+#    state: absent
 
 - name: create config directories
   file:

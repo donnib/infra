@@ -5,7 +5,7 @@ echo "Ansible Galaxy roles installed"
 ansible-galaxy collection install -r requirements.yaml
 echo "Ansible Galaxy collections installed"
 ./git-init.sh
-echo "Ansible vault pre-commit hook installed"
+echo "Ansible vault git pre-commit hook installed"
 
 read -p "Add Ansible Vault Password: " pass
 if [ -d / ]; then

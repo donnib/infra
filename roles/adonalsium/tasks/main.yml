@@ -39,8 +39,8 @@
     - { src: "media_backup.sh", dest: "/home/{{ main_username }}/media_backup.sh" }
 
 ### Wireguard
-#- name: Install Wireguard
-#  include: wireguard.yml
+- name: Install Wireguard
+  include: wireguard.yml
 
 ### DIUN
 - name: Copy DIUN Config Template
@@ -51,10 +51,10 @@
     group: "{{ main_username }}"
 
 ### Infrastructure
-#- name: Set up disks/mounts
-#  include: disks.yml
+- name: Set up disks/mounts
+  include: disks.yml
 
-- name: Set up containers/virtual machines
+- name: Set up containers
   include: infrastructure.yml
 
 ### Cron

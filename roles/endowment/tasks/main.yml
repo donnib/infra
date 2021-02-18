@@ -19,12 +19,7 @@
     - docker/diun
     - nzbdownloads
 
-- name: Modify restart timeout
-  lineinfile:
-    path: /etc/systemd/system/network-online.target.wants/networking.service
-    regexp: "^TimeoutStartSec*"
-    line: "TimeoutStartSec=5sec"
-
+# Ubuntu LXC specific
 #- name: Remove AppArmor
 #  apt:
 #    name: apparmor

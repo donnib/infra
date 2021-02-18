@@ -1,11 +1,6 @@
 ---
 
-- name: Modify restart timeout
-  lineinfile:
-    path: /etc/systemd/system/network-online.target.wants/networking.service
-    regexp: "^TimeoutStartSec*"
-    line: "TimeoutStartSec=5sec"
-
+# Ubuntu LXC specific
 #- name: Remove AppArmor
 #  apt:
 #    name: apparmor
@@ -240,3 +235,10 @@
     state: present
   loop:
     - { job: "/home/{{ main_username }}/scripts/media_backup.sh", name: "Media Backup", hour: "0", minute: "5", weekday: "*" }
+
+### SSH
+- name: SSH Keys - Add HASS SSH Key
+  authorized_key:
+    user: "{{ main_username }}"
+    state: present
+    key: "{{ secret_hass_ssh }}"

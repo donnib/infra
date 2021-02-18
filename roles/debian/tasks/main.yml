@@ -1,0 +1,12 @@
+---
+
+- name: Modify restart timeout
+  lineinfile:
+    path: /etc/systemd/system/network-online.target.wants/networking.service
+    regexp: "^TimeoutStartSec*"
+    line: "TimeoutStartSec=5sec"
+
+- name: Reboot Debian LXC
+  reboot:
+    post_reboot_delay: 15
+    reboot_timeout: 60

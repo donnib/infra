@@ -26,3 +26,4 @@ A huge HUGE thanks to IronicBadger/AlexKTZ for his [infra GitHub repo](https://g
 # Updates
 
 `make update` - Runs apt update and apt upgrade on the servers, and pushes an updated docker-compose.yml file
+`make docker` - Runs docker-compose pull {{containers}} and docker-compose up -d {{container}} on host and containers specified

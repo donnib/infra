@@ -124,3 +124,4 @@ containers:
       - "diun.enable=true"
       - "diun.regopt=docker.io"
     include_global_env_vars: false
+    

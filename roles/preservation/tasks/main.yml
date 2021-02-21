@@ -39,6 +39,7 @@
     mode: +x
   with_items:
     - { src: 'db_backup.sh.j2', dest: 'db_backup.sh' }
+    - { src: 'db_restore.sh.j2', dest: 'db_restore.sh' }
 
 #### Restore Folders
 - name: restore folders from backup

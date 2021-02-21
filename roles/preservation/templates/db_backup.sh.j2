@@ -5,24 +5,28 @@
 docker exec --user www-data Nextcloud php occ maintenance:mode --on
 
 # Backup DB
-now=$(date +"%m_%d_%Y")
-docker exec nextcloud-db sh -c 'exec mysqldump --single-transaction -h localhost -u {{ main_username }} -p{{ secret_nextcloud_db_pass }} nextcloud' > /mnt/Backup/db_backups/nextcloud/nextcloudDB_$now.sql
+yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
+mv /mnt/Backup/db_backups/nextcloud/nextcloudDB.sql /mnt/Backup/db_backups/nextcloud/nextcloudDB_$yesterday.sql
+docker exec nextcloud-db sh -c 'exec mysqldump --single-transaction -h localhost -u {{ main_username }} -p{{ secret_nextcloud_db_pass }} nextcloud' > /mnt/Backup/{{hostname}}/db_backups/nextcloud/nextcloudDB.sql
 
 # Turn off Maintenance Mode
 docker exec --user www-data Nextcloud php occ maintenance:mode --off
 
 #### Bitwarden DB Backup
-now=$(date +"%m_%d_%Y")
-docker exec bitwarden_db sh -c 'exec mysqldump --single-transaction -h localhost -u bitwarden -p{{ secret_bitwarden_db_pass }} bitwarden_rs' > /mnt/Backup/db_backups/bitwarden/bitwardenDB_$now.sql
+yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
+mv /mnt/Backup/db_backups/bitwarden/bitwardenDB.sql /mnt/Backup/db_backups/bitwarden/bitwardenDB_$yesterday.sql
+docker exec bitwarden-db sh -c 'exec mysqldump --single-transaction -h localhost -u bitwarden -p{{ secret_bitwarden_db_pass }} bitwarden_rs' > /mnt/Backup/{{hostname}}/db_backups/bitwarden/bitwardenDB.sql
 
 #### Wallabag Backup
-now=$(date +"%m_%d_%Y")
-docker exec wallabag-db sh -c 'exec mysqldump --single-transaction -h localhost -u root -p{{ secret_wallabag_db_pass }} symfony' > /mnt/Backup/db_backups/wallabag/wallabagDB_$now.sql
+yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
+mv /mnt/Backup/db_backups/wallabag/wallabagDB.sql /mnt/Backup/db_backups/wallabag/wallabagDB_$yesterday.sql
+docker exec wallabag-db sh -c 'exec mysqldump --single-transaction -h localhost -u root -p{{ secret_wallabag_db_pass }} symfony' > /mnt/Backup/{{hostname}}/db_backups/wallabag/wallabagDB.sql
 
 #### Hass Backup
-now=$(date +"%m_%d_%Y")
-docker exec HASS-db sh -c 'exec mysqldump --single-transaction -h localhost -u hass -p{{ secret_hass_db_pass }} homeassistant' > /mnt/Backup/db_backups/hass/hassDB_$now.sql
+yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
+mv /mnt/Backup/db_backups/hass/hassDB.sql /mnt/Backup/db_backups/hass/hassDB_$yesterday.sql
+docker exec HASS-db sh -c 'exec mysqldump --single-transaction -h localhost -u hass -p{{ secret_hass_db_pass }} homeassistant' > /mnt/Backup/{{hostname}}/db_backups/hass/hassDB.sql
 
 #### Delete Old
 
-find /mnt/Backup/db_backups/ -mtime 3 -type f -delete
+find /mnt/Backup/{{hostname}}/db_backups/ -mtime 7 -type f -delete

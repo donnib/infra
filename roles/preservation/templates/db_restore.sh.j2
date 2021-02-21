@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cat /mnt/Backup/db_backups/nextcloud/nextcloudDB.sql | docker exec -i nextcloud-db /usr/bin/mysql -u {{ main_username }} -p{{ secret_nextcloud_db_pass }} nextcloud
+
+cat /mnt/Backup/db_backups/bitwarden/bitwardenDB.sql | docker exec -i bitwarden-db /usr/bin/mysql -u bitwarden -p{{ secret_bitwarden_db_pass }} bitwarden_rs
+
+cat /mnt/Backup/db_backups/wallabag/wallabagDB.sql | docker exec -i nextcloud-db /usr/bin/mysql -u root -p{{ secret_wallabag_db_pass }} symfony
+
+cat /mnt/Backup/db_backups/hass/hassDB.sql | docker exec -i nextcloud-db /usr/bin/mysql -u hass -p{{ secret_hass_db_pass }} homeassistant

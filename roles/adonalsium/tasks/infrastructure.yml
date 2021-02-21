@@ -159,7 +159,7 @@
     vmid: '207'
     hostname: Mercy
     onboot: true
-    unprivileged: false
+    unprivileged: true
     node: adonalsium
     state: present
     storage: local-lvm

@@ -20,6 +20,7 @@
     - docker/wallabag_db
     - docker/hass_db
     - docker/influxdb
+    - db_backups
     - scripts
 
 #### DIUN
@@ -50,6 +51,12 @@
     mode: preserve
   with_items:
     - { src: 'db_backups', dest: 'db_backups' }
+
+#### Restore Databases
+- name: Run DB Restore Script
+  command: /bin/bash ./db_restore.sh
+  args:
+    chdir: "/home/{{main_username}}/scripts"
 
 #### Cronjobs
 - name: "Root Cronjobs"

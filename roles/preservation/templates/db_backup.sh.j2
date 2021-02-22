@@ -28,7 +28,7 @@ mv /home/{{main_username}}/db_backups/hass/hassDB.sql /home/{{main_username}}/db
 docker exec HASS-db sh -c 'exec mysqldump --single-transaction -h localhost -u hass -p{{ secret_hass_db_pass }} homeassistant' > /home/{{main_username}}/db_backups/hass/hassDB.sql
 
 #### Delete Old
-find /home/{{main_username}}/db_backups/ -mtime 7 -type f -delete
+find /home/{{main_username}}/db_backups/ -mtime +7 -type f -delete
 
 #### Backup the backups
-rsync -Aavx --progress --delete /home/{{main_username}}/db_backups/ /mnt/Backup/Adonalsium/{{hostname}}/
+rsync -Aavx --progress --delete /home/{{main_username}}/db_backups/ /mnt/Backup/

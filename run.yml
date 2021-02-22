@@ -18,6 +18,7 @@
     vars_files:
     - 'vars/vault.yaml'
     roles:
+      - role: ironicbadger.ansible_role_proxmox_nag_removal
       - role: grog.package
       - role: geerlingguy.pip
       - role: adonalsium
@@ -25,7 +26,7 @@
       - role: geerlingguy.docker
       - role: ironicbadger.ansible_role_docker_compose_generator
       - role: ironicbadger.ansible_role_snapraid
-      - role: ironicbadger.ansible_role_proxmox_nag_removal
+
 
   - hosts: dominion
     become: true
@@ -47,7 +48,7 @@
       - role: install_fail2ban
       - role: geerlingguy.docker
       - role: geerlingguy.pip
-      - role: geerlingguy.ntp
+#      - role: geerlingguy.ntp
       - role: ironicbadger.ansible_role_docker_compose_generator
       - role: debian
 
@@ -62,7 +63,7 @@
       - role: geerlingguy.pip
       - role: autonomy
       - role: install_fail2ban
-      - role: geerlingguy.ntp
+#      - role: geerlingguy.ntp
       - role: ironicbadger.ansible_role_docker_compose_generator
       - role: debian
 
@@ -76,7 +77,7 @@
       - role: install_fail2ban
       - role: geerlingguy.docker
       - role: geerlingguy.pip
-      - role: geerlingguy.ntp
+#      - role: geerlingguy.ntp
       - role: ironicbadger.ansible_role_docker_compose_generator
       - role: debian
 
@@ -89,7 +90,7 @@
       - role: preservation
       - role: geerlingguy.docker
       - role: geerlingguy.pip
-      - role: geerlingguy.ntp
+#      - role: geerlingguy.ntp
       - role: ironicbadger.ansible_role_docker_compose_generator
       - role: debian
 

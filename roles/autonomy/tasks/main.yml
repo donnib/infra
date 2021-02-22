@@ -83,17 +83,17 @@
 
 ### CATT
 
-- name: Install CATT python package
-  become: true
-  become_user: "{{ main_username }}"
-  pip:
-    name: catt
-    executable: /usr/bin/pip3
+#- name: Install CATT python package
+#  become: true
+#  become_user: "{{ main_username }}"
+#  pip:
+#    name: catt
+#    executable: /usr/bin/pip3
 
-- name: Set CATT default
-  become: true
-  become_user: "{{ main_username }}"
-  command: /home/{{main_username}}/.local/bin/catt -d "Kitchen Hub" set_default
+#- name: Set CATT default
+#  become: true
+#  become_user: "{{ main_username }}"
+#  command: /home/{{main_username}}/.local/bin/catt -d "Kitchen Hub" set_default
 
 #### RTL_433
 
@@ -184,7 +184,7 @@
     dest: /home/{{ main_username }}/hass_docker
     accept_hostkey: true
     key_file: /home/{{main_username}}/.ssh/github
-  become_user: "{{ main_username }}"
+#  become_user: "{{ main_username }}"
 
 - name: Clone NodeRed GitHub Repo
   git:
@@ -192,7 +192,7 @@
     dest: /home/{{ main_username }}/docker/hass_docker/nodered
     accept_hostkey: true
     key_file: /home/{{main_username}}/.ssh/github
-  become_user: "{{ main_username }}"
+#  become_user: "{{ main_username }}"
 
 ### Backup Restore
 

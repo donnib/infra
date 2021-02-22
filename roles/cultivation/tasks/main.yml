@@ -19,7 +19,6 @@
     - docker/dashmachine
     - docker/bitwarden
     - docker/diun
-    - docker/element
     - docker/freshrss
     - docker/nextcloud_docker
     - docker/nginx

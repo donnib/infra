@@ -7,4 +7,5 @@ package_list:
   - name: python
   - name: ansible
   - name: sudo
+  - name: git
   - name: wget

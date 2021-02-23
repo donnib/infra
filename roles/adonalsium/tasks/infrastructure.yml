@@ -1,4 +1,5 @@
 ---
+### Create LXCs
 
 - name: Update pveam
   command: pveam update
@@ -8,7 +9,6 @@
   with_items:
     - ubuntu-20.04-standard_20.04-1_amd64.tar.gz
     - ubuntu-18.04-standard_18.04.1-1_amd64.tar.gz
-    - debian-10-standard_10.7-1_amd64.tar.gz
 
 - name: Create Dominon CT
   proxmox:
@@ -27,96 +27,12 @@
     api_password: "{{ secret_proxmox_pass }}"
     api_host: localhost
     pubkey: "{{ secret_proxmox_ct_ssh }}"
-    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.11/24,ip6=dhcp,bridge=vmbr0"}'
-    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
-
-- name: Create Endowment CT
-  proxmox:
-    vmid: '201'
-    hostname: Endowment
-    unprivileged: false
-    onboot: true
-    state: present
-    node: adonalsium
-    storage: local-lvm
-    disk: '125'
-    cores: '6'
-    memory: '4096'
-    swap: '512'
-    api_user: root@pam
-    api_password: "{{ secret_proxmox_pass }}"
-    api_host: localhost
-    pubkey: "{{ secret_proxmox_ct_ssh }}"
-    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.12/24,ip6=dhcp,bridge=vmbr0"}'
-    ostemplate: 'local:vztmpl/debian-10-standard_10.7-1_amd64.tar.gz'
-    mounts: '{"mp0":"/mnt/Media,mp=/mnt/Media/","mp1":"/mnt/Backup/Adonalsium/endowment,mp=/mnt/Backup/","mp2":"/mnt/Synology_Media,mp=/mnt/Synology_Media/","mp3":"/mnt/Synology_Photos,mp=/mnt/Synology_Photos/"}'
-
-- name: Create Autonomy CT
-  proxmox:
-    vmid: '202'
-    hostname: Autonomy
-    unprivileged: false
-    onboot: true
-    state: present
-    node: adonalsium
-    storage: local-lvm
-    disk: '50'
-    cores: '6'
-    memory: '4096'
-    swap: '512'
-    api_user: root@pam
-    api_password: "{{ secret_proxmox_pass }}"
-    api_host: localhost
-    pubkey: "{{ secret_proxmox_ct_ssh }}"
-    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.13/24,ip6=dhcp,bridge=vmbr0"}'
-    ostemplate: 'local:vztmpl/debian-10-standard_10.7-1_amd64.tar.gz'
-    mounts: '{"mp0":"/mnt/Media,mp=/mnt/Media/,ro=1","mp1":"/mnt/Backup/Adonalsium/autonomy,mp=/mnt/Backup/"}'
-
-- name: Create Cultivation CT
-  proxmox:
-    vmid: '203'
-    hostname: Cultivation
-    unprivileged: false
-    onboot: true
-    state: present
-    node: adonalsium
-    storage: local-lvm
-    disk: '40'
-    cores: '3'
-    memory: '2048'
-    swap: '512'
-    api_user: root@pam
-    api_password: "{{ secret_proxmox_pass }}"
-    api_host: localhost
-    pubkey: "{{ secret_proxmox_ct_ssh }}"
-    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.14/24,ip6=dhcp,bridge=vmbr0"}'
-    ostemplate: 'local:vztmpl/debian-10-standard_10.7-1_amd64.tar.gz'
-    mounts: '{"mp0":"/mnt/Backup/Adonalsium/cultivation,mp=/mnt/Backup/"}'
-
-- name: Create Preservation CT
-  proxmox:
-    vmid: '204'
-    hostname: Preservation
-    onboot: true
-    unprivileged: false
-    state: present
-    node: adonalsium
-    storage: local-lvm
-    disk: '25'
-    cores: '1'
-    memory: '1024'
-    swap: '512'
-    api_user: root@pam
-    api_password: "{{ secret_proxmox_pass }}"
-    api_host: localhost
-    pubkey: "{{ secret_proxmox_ct_ssh }}"
     netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.15/24,ip6=dhcp,bridge=vmbr0"}'
-    ostemplate: 'local:vztmpl/debian-10-standard_10.7-1_amd64.tar.gz'
-    mounts: '{"mp0":"/mnt/Backup/Adonalsium/preservation,mp=/mnt/Backup/"}'
+    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
 
 - name: Create Honor CT
   proxmox:
-    vmid: '205'
+    vmid: '201'
     hostname: Honor
     onboot: true
     unprivileged: true
@@ -136,7 +52,7 @@
 
 - name: Create Valor CT
   proxmox:
-    vmid: '206'
+    vmid: '202'
     hostname: Valor
     onboot: false
     unprivileged: true
@@ -156,7 +72,7 @@
 
 - name: Create Mercy CT
   proxmox:
-    vmid: '207'
+    vmid: '203'
     hostname: Mercy
     onboot: true
     unprivileged: true
@@ -175,10 +91,68 @@
     ostemplate: 'local:vztmpl/ubuntu-18.04-standard_18.04.1-1_amd64.tar.gz'
     mounts: '{"mp0":"/mnt/Backup/Adonalsium/mercy,mp=/mnt/Backup/"}'
 
-- name: Enable nesting
-  shell: pct set {{item}} --features nesting=1
+### Create VMs
+- name: Copy template generator script
+  copy:
+    src: template-generator.sh
+    dest: /root
+    mode: +x
+- name: Run template generator script
+  command: /bin/bash ./template-generator.sh
+  args:
+    chdir: "/root"
+- name: Remove template generator script
+  file:
+    path: /root/template-generator.sh
+    state: absent
+
+- name: Add Bootstrap SSH Key
+  copy:
+    dest: /root/bootstrap
+    owner: root
+    group: root
+    mode: 0600
+    content: "{{ secret_proxmox_ct_ssh }}"
+
+- name: Create VMs
+  proxmox_kvm:
+    node: odium
+    storage: local-lvm
+    format: qcow2
+    timeout: 60
+    api_user: root@pam
+    api_password: "{{ secret_proxmox_pass }}"
+    api_host: localhost
+    clone: ubuntu-template
+    vmid: 9000
+    name: "{{item.name}}"
+    newid: "{{item.vmid}}"
   with_items:
-    - 201
-    - 202
-    - 203
-    - 204
+    - { "name":"Endowment","vmid":"300"}
+    - { "name":"Autonomy","vmid":"301"}
+    - { "name":"Cultivation","vmid":"302"}
+    - { "name":"Preservation","vmid":"303"}
+
+- name: Adjust VM settings
+  shell: qm set {{item.vmid}} --onboot true --ciuser root --sshkeys /root/bootstrap  --ostype l26 --balloon 512 --ipconfig0 ip={{item.ip}}/24,gw=192.168.30.1 --cores {{item.cores}} --memory {{item.memory}} --startup {{item.order}}
+  with_items:
+    - { "vmid":"300","ip":"192.168.30.11","cores":"6","memory":"4096","order":"order=3"}
+    - { "vmid":"301","ip":"192.168.30.12","cores":"6","memory":"4096","order":"order=2"}
+    - { "vmid":"302","ip":"192.168.30.13","cores":"4","memory":"2048","order":"order=4"}
+    - { "vmid":"303","ip":"192.168.30.14","cores":"2","memory":"2048","order":"order=1"}
+
+- name: Resize VMs
+  shell: qm resize {{item.vmid}} scsi0 +{{item.size}}
+  with_items:
+    - { "vmid":"300","size":"75G"}
+    - { "vmid":"301","size":"50G"}
+    - { "vmid":"302","size":"40G"}
+    - { "vmid":"303","size":"40G"}
+
+- name: Remove Bootstrap SSH Key
+  file:
+    dest: /root/bootstrap
+    state: absent
+
+- name: Destroy template
+  shell: qm destroy 9000

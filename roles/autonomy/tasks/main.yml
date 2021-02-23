@@ -1,11 +1,5 @@
 ---
 
-# Ubuntu LXC specific
-#- name: Remove AppArmor
-#  apt:
-#    name: apparmor
-#    state: absent
-
 - name: create config directories
   file:
     path: /home/{{ main_username }}/{{ item }}
@@ -86,11 +80,6 @@
 
 - name: Install CATT python package
   command: pip3 install catt
-#  become: true
-#  become_user: "{{ main_username }}"
-#  pip:
-#    name: catt
-#    executable: /usr/bin/pip3
 
 - name: Set CATT Defaults
   copy:
@@ -203,9 +192,9 @@
     key_file: /home/{{main_username}}/.ssh/github
 #  become_user: "{{ main_username }}"
 
-### Setup traffic image stuff
-- name: Set to use right profile
-  command: export XDG_RUNTIME_DIR=/run/user/{{main_uid}}
+### Setup traffic image stuff (MAY NOT NEED)
+#- name: Set to use right profile
+#  command: export XDG_RUNTIME_DIR=/run/user/{{main_uid}}
 
 ### Backup Restore
 

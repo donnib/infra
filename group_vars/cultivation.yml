@@ -14,6 +14,9 @@ package_list:
   - name: sudo
   - name: wget
   
+nfs_mountpoints:
+  - { path: "/mnt/Backup", source: "192.168.30.25:/volume1/Backup/Adonalsium/cultivation", fs: nfs, opts: "rw,sync" }
+  
 ### Docker-Compose with ironicbadger.docker_compose_generator
 appdata_path: "/home/{{ main_username }}/docker"
 containers:

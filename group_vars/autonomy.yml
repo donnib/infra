@@ -22,6 +22,10 @@ package_list:
   - name: wget
   - name: xvfb
 
+nfs_mountpoints:
+  - { path: "/mnt/Backup", source: "192.168.30.25:/volume1/Backup/Adonalsium/autonomy", fs: nfs, opts: "rw,sync" }
+  - { path: "/mnt/Media", source: "192.168.30.10:/mnt/Media", fs: nfs, opts: "ro,sync" }
+
 ### Docker-Compose with ironicbadger.docker_compose_generator
 appdata_path: "/home/{{ main_username }}/docker"
 containers:

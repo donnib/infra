@@ -7,8 +7,6 @@ package_list:
   - name: mergerfs
   - name: pve-headers
   - name: git
-#  - name: nfs-kernel-server
-#  - name: nfs-client
 
 mergerfs_mount:
   - { path: /mnt/Media }

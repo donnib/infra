@@ -1,11 +1,5 @@
 ---
 
-# Ubuntu LXC specific
-#- name: Remove AppArmor
-#  apt:
-#    name: apparmor
-#    state: absent
-
 - name: create config directories
   file:
     path: "/home/{{main_username}}/{{ item }}"

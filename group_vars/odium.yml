@@ -7,12 +7,12 @@ package_list:
   - name: curl
   - name: git
   - name: htop
-  - name: lm-sensors
-  - name: net-tools
-  - name: fail2ban
-  - name: python
-  - name: sudo
   - name: wget
+
+synology_mountpoints:
+  - { path: "/mnt/Backup", source: "192.168.30.25:/volume1/Backup/", fs: nfs, opts: "rw,sync" }
+  - { path: "/mnt/Synology_Media", source: "192.168.30.25:/volume1/Media/", fs: nfs, opts: "rw,sync" }
+  - { path: "/mnt/Synology_Photos", source: "192.168.30.25:/volume1/photo/", fs: nfs, opts: "rw,sync" }
 
 ### Docker-Compose with ironicbadger.docker_compose_generator
 appdata_path: /home/{{main_username}}/docker

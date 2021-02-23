@@ -24,9 +24,6 @@ valor:
 mercy:
 	ansible-playbook -b run.yml --limit mercy --vault-password-file .vault-password
 
-odium:
-	ansible-playbook -b run.yml --limit odium --vault-password-file .vault-password
-
 ### Updates
 update:
 	ansible-playbook update.yml --limit shards --vault-password-file .vault-password
@@ -44,6 +41,9 @@ encrypt:
 ### Setup
 proxmox:
 	ansible-playbook -u root -b run.yml --limit adonalsium --ask-pass --vault-password-file .vault-password
+
+odium:
+	ansible-playbook -u root -b run.yml --limit odium --ask-pass --vault-password-file .vault-password
 
 bootstrap:
 	ansible-playbook -u root -b bootstrap.yml --limit shards --vault-password-file .vault-password

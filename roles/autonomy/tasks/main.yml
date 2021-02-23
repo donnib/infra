@@ -13,6 +13,7 @@
     owner: "{{ main_username }}"
     group: "{{ main_groupname }}"
   loop:
+    - .config/catt
     - docker
     - scripts
     - db_backup
@@ -83,17 +84,25 @@
 
 ### CATT
 
-#- name: Install CATT python package
+- name: Install CATT python package
+  command: pip3 install catt
 #  become: true
 #  become_user: "{{ main_username }}"
 #  pip:
 #    name: catt
 #    executable: /usr/bin/pip3
 
-#- name: Set CATT default
-#  become: true
-#  become_user: "{{ main_username }}"
-#  command: /home/{{main_username}}/.local/bin/catt -d "Kitchen Hub" set_default
+- name: Set CATT Defaults
+  copy:
+    dest: /home/{{main_username}}/.config/catt/catt.cfg
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+    mode: 0644
+    content: |
+      [options]
+      device = Kitchen Hub
+
+      [aliases]
 
 #### RTL_433
 
@@ -193,6 +202,10 @@
     accept_hostkey: true
     key_file: /home/{{main_username}}/.ssh/github
 #  become_user: "{{ main_username }}"
+
+### Setup traffic image stuff
+- name: Set to use right profile
+  command: export XDG_RUNTIME_DIR=/run/user/{{main_uid}}
 
 ### Backup Restore
 

@@ -1,5 +1,78 @@
 ---
 
-- name: ensure hostname is set correctly
-  hostname:
-    name: "{{ hostname }}"
+### Basic Setup
+
+- name: Switch to community repo
+  apt_repository:
+    repo: 'deb https://enterprise.proxmox.com/debian/pve stretch pve-enterprise'
+    state: 'absent'
+  apt_repository:
+    repo: 'deb http://download.proxmox.com/debian/pve stretch pve-no-subscription'
+    state: 'present'
+       
+- name: Install Proxmoxer
+  pip:
+    name: proxmoxer
+
+- name: Ensure user groups exists
+  group:
+    name: "{{ main_username }}"
+    state: present
+
+- name: Add main user
+  user:
+    name: "{{ main_username }}"
+    password: "{{ secret_main_user_pass }}"
+    groups:
+      - "{{ main_username }}"
+    shell: /bin/bash
+
+- name: create main user directories
+  file:
+    path: /home/{{ main_username }}/{{ item }}
+    state: directory
+    owner: "{{ main_username }}"
+    group: "{{ main_groupname }}"
+  loop:
+    - docker
+    - docker/diun
+
+### DIUN
+- name: Copy DIUN Config Template
+  template:
+    src: diun_config.yml.j2
+    dest: /home/{{ main_username }}/docker/diun/config.yml
+    owner: "{{ main_username }}"
+    group: "{{ main_username }}"
+
+### Infrastructure
+- name: Set up disks/mounts
+  include: disks.yml
+
+### Install Netdata
+- name: Download the installation script
+  get_url:
+    url: https://my-netdata.io/kickstart.sh
+    dest: ~/kickstart.sh
+    mode: +x
+
+- name: Install Netdata
+  command: ~/kickstart.sh --dont-wait
+
+- name: Cleanup installation script
+  file:
+    path: ~/kickstart.sh
+    state: absent
+
+- name: Netdata configuration
+  template:
+    src: templates/netdata.conf.j2
+    dest: /etc/netdata/netdata.conf
+    owner: root
+    group: root
+    mode: u=wrx,g=rx,o=r,+x
+
+- name: Restart Netdata
+  service:
+    name: netdata
+    state: restarted

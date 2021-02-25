@@ -95,7 +95,7 @@ containers:
       - mqtt
       - homeassistant
     devices:
-      - /dev/serial/by-id/usb-0658_0200-if00:/dev/zwave
+      - /dev/bus/usb/002/022:/dev/zwave
     security_opt:
       - seccomp:unconfined
     labels:
@@ -103,7 +103,7 @@ containers:
       - "diun.regopt=docker.io"
     environment:
       - TZ={{ ntp_timezone }}
-      - MQTT_SERVER=192.168.30.13
+      - MQTT_SERVER=192.168.30.12
       - MQTT_USERNAME=homeassistant
       - MQTT_PASSWORD={{ secret_mqtt_pass }}
       - USB_PATH=/dev/zwave
@@ -119,9 +119,9 @@ containers:
       - 5316:5316
     network_mode: host
     devices:
-      - /dev/serial/by-id/usb-dresden_elektronik_ingenieurtechnik_GmbH_ConBee_II_DE2152697-if00:/dev/ttyACM1
+      - /dev/bus/usb/002/020:/dev/ttyACM1
     volumes:
-      - "{{ appdata_path }}/hass_docker/deconz:/root/.local/share/dresden-elektronik/deCONZ"
+      - "{{ appdata_path }}/deconz:/root/.local/share/dresden-elektronik/deCONZ"
     labels:
       - "diun.enable=true"
       - "diun.regopt=docker.io"
@@ -159,9 +159,9 @@ containers:
     ports:
       - 1883:1883
     volumes:
-      - "{{ appdata_path }}/hass_docker/mqtt/config:/mosquitto/config/"
-      - "{{ appdata_path }}/hass_docker/mqtt/data:/mosquitto/data/"
-      - "{{ appdata_path }}/hass_docker/mqtt/log:/mosquitto/log/"
+      - "{{ appdata_path }}/mqtt/config:/mosquitto/config/"
+      - "{{ appdata_path }}/mqtt/data:/mosquitto/data/"
+      - "{{ appdata_path }}/mqtt/log:/mosquitto/log/"
     labels:
       - "diun.enable=true"
       - "diun.regopt=docker.io"
@@ -175,7 +175,7 @@ containers:
     ports:
       - 1880:1880
     volumes:
-      - "{{ appdata_path }}/hass_docker/nodered:/data"
+      - "{{ appdata_path }}/nodered:/data"
       - /etc/localtime:/etc/localtime:ro
     environment:
       - TZ={{ ntp_timezone }}

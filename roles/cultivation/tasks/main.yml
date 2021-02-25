@@ -7,18 +7,9 @@
     owner: "{{ main_username }}"
     group: "{{ main_groupname }}"
   loop:
-    - db_backup
-    - scripts
     - docker
-    - docker/dashmachine
-    - docker/bitwarden
     - docker/diun
-    - docker/freshrss
-    - docker/nextcloud_docker
-    - docker/nginx
-    - docker/wallabag
-    - docker/unifi
-    - docker/snapdrop
+    - scripts
 
 - name: Create duckdns file
   copy:
@@ -48,13 +39,12 @@
 
 #### Restore Folders
 - name: restore folders from backup
-  copy:
+  unarchive:
     src: /mnt/Backup/{{item.src}}
     dest: "/home/{{ main_username }}/{{item.dest}}"
-    remote_src: true
-    mode: preserve
+    remote_src: yes
   with_items:
-    - { src: 'docker', dest: 'docker' }
+    - { src: 'docker.tar.gz', dest: '' }
 
 #### Cronjobs
 - name: "Main User Cronjobs"

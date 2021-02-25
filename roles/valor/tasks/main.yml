@@ -3,7 +3,7 @@
   authorized_key:
     user: "{{ main_username }}"
     state: present
-    key: "{{ secret_phone_ssh }}"
+    key: "{{ secret_pixel_ssh }}"
 
 - name: SSH Keys - Add Work SSH Key
   authorized_key:

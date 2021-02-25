@@ -29,6 +29,8 @@ containers:
     environment:
       - MYSQL_ROOT_PASSWORD={{ secret_db_root_pass }}
       - MYSQL_DATABASE=homeassistant
+      - MYSQL_USER=hass
+      - MYSQL_PASSWORD={{ secret_hass_db_pass }}
     mem_limist: 100M
     labels:
       - "diun.enable=true"
@@ -55,6 +57,8 @@ containers:
     active: true
     image: mariadb
     restart: always
+    ports:
+      - 3308:3306
     volumes:
       - "{{ appdata_path }}/bitwarden_db:/var/lib/mysql"
     environment:
@@ -70,6 +74,8 @@ containers:
     active: true
     image: mariadb
     restart: always
+    ports:
+      - 3306:3306
     volumes:
       - "{{ appdata_path }}/nextcloud_db:/var/lib/mysql"
     environment:
@@ -85,6 +91,8 @@ containers:
     active: true
     image: mariadb
     restart: always
+    ports:
+      - 3309:3306
     volumes:
       - "{{ appdata_path }}/wallabag_db:/var/lib/mysql"
     environment:

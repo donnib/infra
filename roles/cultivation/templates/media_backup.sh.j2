@@ -2,4 +2,9 @@
 
 sudo mount /mnt/Backup
 
-rsync -Aavx --progress --delete /home/{{ main_username }}/docker/ /mnt/Backup/docker
+yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
+mv /mnt/Backup/docker.tar.gz /mnt/Backup/docker_$yesterday.tar.gz
+
+sudo tar -cvf /mnt/Backup/docker.tar.gz -C /home/{{ main_username }}/ docker
+
+find /mnt/Backup -mtime +3 -type f -delete

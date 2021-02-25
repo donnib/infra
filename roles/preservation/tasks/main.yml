@@ -44,7 +44,7 @@
     remote_src: true
     mode: preserve
   with_items:
-    - { src: 'db_backups', dest: 'db_backups' }
+    - { src: 'db_backups', dest: '' }
 
 #### Restore Databases
 - name: Run DB Restore Script

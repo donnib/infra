@@ -9,20 +9,8 @@
   loop:
     - .config/catt
     - docker
-    - scripts
-    - db_backup
-    - hass_docker
-    - hass_docker_beta
-    - docker/hass_docker
-    - docker/hass_docker/deconz
-    - docker/hass_docker/mqtt
-    - docker/hass_docker/nodered
-    - docker/hass_docker/grafana
-    - docker/iobroker
-    - docker/ozw
-    - docker/tasmota
-    - docker/deepstack
     - docker/diun
+    - scripts
 
 #### Scripts
 
@@ -187,7 +175,7 @@
 - name: Clone NodeRed GitHub Repo
   git:
     repo: git@github.com:FuzzyMistborn/hass-nodered.git
-    dest: /home/{{ main_username }}/docker/hass_docker/nodered
+    dest: /home/{{ main_username }}/docker/nodered
     accept_hostkey: true
     key_file: /home/{{main_username}}/.ssh/github
 #  become_user: "{{ main_username }}"
@@ -199,15 +187,14 @@
 ### Backup Restore
 
 - name: restore folders from backup
-  copy:
+  unarchive:
     src: /mnt/Backup/{{item.src}}
     dest: "/home/{{ main_username }}/{{item.dest}}"
-    remote_src: true
-    mode: preserve
+    remote_src: yes
   with_items:
-    - { src: 'docker', dest: 'docker' }
-    - { src: 'hass_docker_beta', dest: 'hass_docker_beta' }
-    - { src: 'hass_docker', dest: 'hass_docker' }
+    - { src: 'docker.tar.gz', dest: '' }
+    - { src: 'hass_docker_beta.tar.gz', dest: '' }
+    - { src: 'hass_docker.tar.gz', dest: '' }
 
 ### Cronjobs
 - name: "Main User Cronjobs"

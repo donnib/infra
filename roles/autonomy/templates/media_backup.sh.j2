@@ -2,6 +2,13 @@
 
 sudo mount /mnt/Backup
 
-rsync -Aavx --progress --delete /home/{{ main_username }}/docker/ /mnt/Backup/docker
-rsync -Aavx --progress --delete /home/{{ main_username }}/hass_docker /mnt/Backup/hass_docker
-rsync -Aavx --progress --delete /home/{{ main_username }}/hass_docker_beta /mnt/Backup/hass_docker_beta
+yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
+mv /mnt/Backup/hass_docker.tar.gz /mnt/Backup/hass_docker_$yesterday.tar.gz
+mv /mnt/Backup/hass_docker_beta.tar.gz /mnt/Backup/hass_docker_beta_$yesterday.tar.gz
+mv /mnt/Backup/docker.tar.gz /mnt/Backup/docker_$yesterday.tar.gz
+
+sudo tar -cvf /mnt/Backup/hass_docker.tar.gz -C /home/{{ main_username }}/ hass_docker
+sudo tar -cvf /mnt/Backup/hass_docker_beta.tar.gz -C /home/{{ main_username }}/ hass_docker_beta
+sudo tar -cvf /mnt/Backup/docker.tar.gz -C /home/{{ main_username }}/ docker
+
+find /mnt/Backup -mtime +3 -type f -delete

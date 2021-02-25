@@ -3,10 +3,15 @@
 cd /home/{{main_username}}
 docker-compose up -d nextcloud-db bitwarden-db wallabag-db hass-db
 
-cat /home/{{main_username}}/db_backups/nextcloud/nextcloudDB.sql | docker exec -i nextcloud-db /usr/bin/mysql -u {{ main_username }} -p{{ secret_nextcloud_db_pass }} nextcloud
+sleep 30s
+echo Restoring Nextcloud DB
+docker exec -i nextcloud-db /usr/bin/mysql -u {{ main_username }} -p{{ secret_nextcloud_db_pass }} nextcloud < /home/{{main_username}}/db_backups/nextcloud/nextcloudDB.sql
 
-cat /home/{{main_username}}/db_backups/bitwarden/bitwardenDB.sql | docker exec -i bitwarden-db /usr/bin/mysql -u bitwarden -p{{ secret_bitwarden_db_pass }} bitwarden_rs
+echo Restoring Bitwarden DB
+docker exec -i bitwarden-db /usr/bin/mysql -u bitwarden -p{{ secret_bitwarden_db_pass }} bitwarden_rs < /home/{{main_username}}/db_backups/bitwarden/bitwardenDB.sql
 
-cat /home/{{main_username}}/db_backups/wallabag/wallabagDB.sql | docker exec -i wallabag-db /usr/bin/mysql -u root -p{{ secret_wallabag_db_pass }} symfony
+echo Restoring Wallabag DB
+docker exec -i wallabag-db /usr/bin/mysql -u root -p{{ secret_wallabag_db_pass }} symfony < /home/{{main_username}}/db_backups/wallabag/wallabagDB.sql
 
-cat /home/{{main_username}}/db_backups/hass/hassDB.sql | docker exec -i hass-db /usr/bin/mysql -u hass -p{{ secret_hass_db_pass }} homeassistant
+echo Restoring HASS DB
+docker exec -i hass-db /usr/bin/mysql -u hass -p{{ secret_hass_db_pass }} homeassistant < /home/{{main_username}}/db_backups/hass/hassDB.sql

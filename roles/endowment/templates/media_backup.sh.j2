@@ -10,4 +10,9 @@ rsync -Aavx --progress --delete /mnt/Media/Music/ /mnt/Synology_Media/Music
 rsync -Aavx --progress --delete /mnt/Media/Audiobooks/ /mnt/Synology_Media/Audiobooks
 
 rsync -Aavx --progress --delete /mnt/Media/Files/ /mnt/Backup/Files
-rsync -Aavx --progress --delete /home/{{ main_username }}/docker/ /mnt/Backup/docker
+
+yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
+mv /mnt/Backup/docker/docker.tar.gz /mnt/Backup/docker/docker_$yesterday.tar.gz
+sudo tar -cvf /mnt/Backup/docker/docker.tar.gz -C /home/{{ main_username }}/ docker
+
+find /mnt/Backup/docker -mtime +3 -type f -delete

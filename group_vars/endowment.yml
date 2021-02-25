@@ -63,8 +63,8 @@ containers:
       - /mnt/Media/Parents TV:/mnt/parents_tv
       - "{{ appdata_path }}/emby/backup:/mnt/backup"
       - "{{ appdata_path }}/emby/transcode:/transcode"
-    devices:
-      - /dev/dri/renderD128
+#    devices:
+#      - /dev/dri/renderD128
     environment:
       - GIDLIST=44
     include_global_env_vars: true
@@ -93,7 +93,7 @@ containers:
     image: linuxserver/radarr
     restart: always
     ports:
-      - 7878:7878
+      - 7879:7878
     volumes:
       - "{{ appdata_path }}/radarr_uhd:/config"
       - /mnt/Media/UHD:/uhd
@@ -156,7 +156,7 @@ containers:
   - service_name: lms
     container_name: logitech_media_server
     active: true
-    image: fuzzymistborn:lms:latest
+    image: fuzzymistborn/lms:latest
     restart: always
     network_mode: host
     volumes:

@@ -46,7 +46,7 @@ odium:
 	ansible-playbook -u root -b run.yml --limit odium --ask-pass --vault-password-file .vault-password
 
 bootstrap:
-	ansible-playbook -u root -b bootstrap.yml --limit shards --vault-password-file .vault-password
+	ansible-playbook -b bootstrap.yml --vault-password-file .vault-password
 
 git:
 	@./gitupdate.sh

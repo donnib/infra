@@ -31,7 +31,7 @@ containers:
       - MYSQL_DATABASE=homeassistant
       - MYSQL_USER=hass
       - MYSQL_PASSWORD={{ secret_hass_db_pass }}
-    mem_limist: 100M
+    mem_limist: 300M
     labels:
       - "diun.enable=true"
       - "diun.regopt=docker.io"
@@ -66,7 +66,7 @@ containers:
       - MYSQL_DATABASE=bitwarden_rs
       - MYSQL_USER=bitwarden
       - MYSQL_PASSWORD={{ secret_bitwarden_db_pass }}
-    mem_limit: 100M
+    mem_limit: 300M
     include_global_env_vars: false
   ###
   - service_name: nextcloud-db
@@ -83,7 +83,7 @@ containers:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER={{ main_username }}
       - MYSQL_PASSWORD={{ secret_nextcloud_db_pass }}
-    mem_limit: 100M
+    mem_limit: 300M
     include_global_env_vars: false
   ###
   - service_name: wallabag-db
@@ -98,7 +98,7 @@ containers:
     environment:
       - MYSQL_ROOT_PASSWORD={{ secret_db_root_pass }}
       - MYSQL_DATABASE=symfony
-    mem_limit: 100M
+    mem_limit: 300M
     include_global_env_vars: false
   ###
   - service_name: diun
@@ -111,7 +111,7 @@ containers:
       - "diun.regopt=docker.io"
     volumes:
       - "{{ appdata_path }}/diun/data:/data"
-      - "{{ appdata_path }}/diun/diun.yml:/diun.yml:ro"
+      - "{{ appdata_path }}/diun/config.yml:/diun.yml:ro"
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - LOG_LEVEL=info

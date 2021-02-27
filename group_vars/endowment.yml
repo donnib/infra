@@ -34,7 +34,7 @@ containers:
       - "diun.regopt=docker.io"
     volumes:
       - "{{ appdata_path }}/diun/data:/data"
-      - "{{ appdata_path }}/diun/diun.yml:/diun.yml:ro"
+      - "{{ appdata_path }}/diun/config.yml:/diun.yml:ro"
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - LOG_LEVEL=info

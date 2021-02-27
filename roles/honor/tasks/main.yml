@@ -23,3 +23,9 @@
   shell: sudo curl -sSL https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh
   notify:
     - start adguard
+
+- name: Stop resolved
+  service:
+    name: systemd-resolved
+    enabled: no
+    state: stop

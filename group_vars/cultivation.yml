@@ -31,7 +31,7 @@ containers:
       - "diun.regopt=docker.io"
     volumes:
       - "{{ appdata_path }}/diun/data:/data"
-      - "{{ appdata_path }}/diun/diun.yml:/diun.yml:ro"
+      - "{{ appdata_path }}/diun/config.yml:/diun.yml:ro"
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - LOG_LEVEL=info
@@ -47,7 +47,7 @@ containers:
     ports:
       - 6482:80
     volumes:
-      - "{{ appdata_path }}/bitwarden:/data"
+      - "{{ appdata_path }}/bitwarden/data:/data"
     environment:
       - SMTP_HOST={{ secret_snapraid_smtp_host }}
       - SMTP_FROM={{ secret_bitwarden_email }}
@@ -91,7 +91,7 @@ containers:
       - MYSQL_ROOT_PASSWORD={{ secret_db_root_pass }}
       - SYMFONY__ENV__DATABASE_DRIVER=pdo_mysql
       - SYMFONY__ENV__DATABASE_HOST=192.168.30.14
-      - SYMFONY__ENV__DATABASE_PORT=3306
+      - SYMFONY__ENV__DATABASE_PORT=3309
       - SYMFONY__ENV__DATABASE_NAME=symfony
       - SYMFONY__ENV__DATABASE_PASSWORD={{ secret_db_root_pass }}
       - SYMFONY__ENV__FOSUSER_REGISTRATION=false

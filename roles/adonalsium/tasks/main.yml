@@ -40,8 +40,8 @@
     - { src: "media_backup.sh", dest: "/home/{{ main_username }}/media_backup.sh" }
 
 ### Wireguard
-- name: Install Wireguard
-  include: wireguard.yml
+#- name: Install Wireguard
+#  include: wireguard.yml
 
 ### DIUN
 - name: Copy DIUN Config Template
@@ -57,6 +57,40 @@
 
 - name: Set up containers
   include: infrastructure.yml
+
+#### NUT
+
+- name: Set Nut Facts
+  set_fact:
+    install_nut: "{{ install_nut == true }}"
+
+- name: Copy nut folder
+  copy:
+    src: etc/nut/{{item}}
+    dest: /etc/nut/{{item}}
+    owner: root
+    group: nut
+    mode: 0640
+  with_items:
+    - 'nut.conf'
+    - 'ups.conf'
+    - 'upsd.conf'
+    - 'upsd.users'
+  when: install_nut
+
+- name: Copy NUT script
+  copy:
+    src: nut.sh
+    dest: /home/{{main_username}}
+    mode: +x
+  when: install_nut
+
+- name: Run NUT script
+  command: /bin/bash ./nut.sh
+  args:
+    chdir: /home/{{main_username}}
+    creates: /home/{{main_username}}/nut.sh
+  when: install_nut
 
 ### Cron
 - name: "Main User Cronjobs"

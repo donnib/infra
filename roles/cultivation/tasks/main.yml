@@ -37,6 +37,26 @@
     owner: "{{ main_username }}"
     group: "{{ main_username }}"
 
+#### Nginx Bash Alias
+
+- name: Setup nginx reload aliases
+  lineinfile:
+    dest: "/etc/bash_aliases"
+    create: yes
+    group: root
+    line: "alias {{ item.alias }}='{{ item.command }}'"
+    mode: 0644
+    owner: root
+    regexp: "^alias {{ item.alias }}="
+  with_items:
+    - { alias: "nginx", command: "docker exec nginx nginx -s reload" }
+
+- name: Source aliases file
+  lineinfile:
+    dest: /etc/bash.bashrc
+    line: 'source /etc/bash_aliases'
+    state: present
+
 #### Restore Folders
 - name: restore folders from backup
   unarchive:

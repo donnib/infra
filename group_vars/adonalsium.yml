@@ -7,6 +7,8 @@ package_list:
   - name: mergerfs
   - name: pve-headers
   - name: git
+  - name: nut
+  - name: apcupsd
 
 mergerfs_mount:
   - { path: /mnt/Media }
@@ -32,6 +34,8 @@ synology_mountpoints:
 
 fstab_mergerfs:
   - { source: "/mnt/disk*", mountpoint: "/mnt/Media", fs: fuse.mergerfs, opts: "direct_io,defaults,allow_other,minfreespace=50G,fsname=mergerfs" }  
+
+install_nut: false
 
 ### NFS Setup
 nfs_exports: [ "/mnt/Media *(rw,sync,fsid=0,no_root_squash,no_subtree_check)" ]
@@ -80,7 +84,7 @@ containers:
       - "diun.regopt=docker.io"
     volumes:
       - "{{ appdata_path }}/diun/data:/data"
-      - "{{ appdata_path }}/diun/diun.yml:/diun.yml:ro"
+      - "{{ appdata_path }}/diun/config.yml:/diun.yml:ro"
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - LOG_LEVEL=info

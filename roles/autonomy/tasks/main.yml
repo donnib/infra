@@ -83,6 +83,9 @@
 
 #### RTL_433
 
+- name: Install paho-mqtt
+  command: pip3 install paho-mqtt
+
 - name: Copy RTL_433 script
   template:
     src: rtl_433.sh.j2
@@ -127,33 +130,6 @@
   loop:
     - rtl433
 
-#### NUT Server
-
-- name: Copy nut folder
-  copy:
-    src: etc/nut/{{item}}
-    dest: /etc/nut/{{item}}
-    owner: root
-    group: nut
-    mode: 0640
-  with_items:
-    - 'nut.conf'
-    - 'ups.conf'
-    - 'upsd.conf'
-    - 'upsd.users'
-
-- name: Copy NUT script
-  copy:
-    src: nut.sh
-    dest: /home/ansible
-    mode: +x
-
-- name: Run NUT script
-  command: /bin/bash ./nut.sh
-  args:
-    chdir: "/home/ansible"
-    creates: "/home/ansible/nut.sh"
-
 #### DIUN
 - name: Copy DIUN Config Template
   template:
@@ -164,13 +140,18 @@
 
 #### HASS Git
 
+- name: Set Backup Facts
+  set_fact:
+    clone_git: "{{ clone_git == true }}"
+    pull_backup: "{{ pull_backup == true }}"
+
 - name: Clone HASS GitHub Repo
   git:
     repo: git@github.com:FuzzyMistborn/hass-docker.git
     dest: /home/{{ main_username }}/hass_docker
     accept_hostkey: true
     key_file: /home/{{main_username}}/.ssh/github
-#  become_user: "{{ main_username }}"
+  when: clone_git
 
 - name: Clone NodeRed GitHub Repo
   git:
@@ -178,7 +159,7 @@
     dest: /home/{{ main_username }}/docker/nodered
     accept_hostkey: true
     key_file: /home/{{main_username}}/.ssh/github
-#  become_user: "{{ main_username }}"
+  when: clone_git
 
 ### Setup traffic image stuff (MAY NOT NEED)
 #- name: Set to use right profile
@@ -195,6 +176,7 @@
     - { src: 'docker.tar.gz', dest: '' }
     - { src: 'hass_docker_beta.tar.gz', dest: '' }
     - { src: 'hass_docker.tar.gz', dest: '' }
+  when: pull_backup
 
 ### Cronjobs
 - name: "Main User Cronjobs"

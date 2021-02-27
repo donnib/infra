@@ -1,12 +1,11 @@
 ---
 
-- hosts: all
-#  remote_user: root
+- hosts: lxc
+  remote_user: root
   gather_facts: true
   vars_files:
     - 'vars/vault.yaml'
   tasks:
-
   - name: Apt update
     apt:
       upgrade: 'yes'
@@ -21,14 +20,65 @@
       - "{{ main_username }}"
       - ansible
 
-  - name: Add main user
+  - name: Add users
     user:
-      name: "{{ main_username }}"
-      password: "{{ secret_main_user_pass }}"
+      name: "{{ item.user }}"
+      password: "{{ item.pass }}"
       groups: 
-        - "{{ main_username }}"
+        - "{{ item.user }}"
         - sudo
       shell: /bin/bash
+    loop:
+      - { user: "{{ main_username }}", pass: "{{ secret_main_user_pass }}" }
+      - { user: ansible, pass: "{{ secret_ansible_pass }}" }
+
+  - name: Add sudoers file for ansible
+    copy:
+      src: sudoer_ansible
+      dest: /etc/sudoers.d/ansible
+      owner: root
+      group: root
+      mode: 0440
+
+  - name: SSH Keys
+    authorized_key:
+      user: "{{ item.user }}"
+      state: present
+      key: "{{ item.ssh }}"
+    loop:
+      - { user: "{{ main_username }}", ssh: "{{ secret_main_user_ssh }}" }
+      - { user: "{{ main_username }}", ssh: "{{ secret_main_user_alt_ssh }}" }
+      - { user: ansible, ssh: "{{ secret_ansible_ssh }}" }
+  
+  - name: Add hardened SSH config
+    copy:
+      src: sshd_config
+      dest: /etc/ssh/sshd_config
+      owner: root
+      group: root
+      mode: 0600
+
+  - name: Restart ssh
+    service:
+      name: sshd
+      state: restarted
+
+- hosts: vm
+  remote_user: "{{main_username}}"
+  gather_facts: true
+  vars_files:
+    - 'vars/vault.yaml'
+  tasks:
+  - name: Apt update
+    apt:
+      upgrade: 'yes'
+      update_cache: yes
+      cache_valid_time: 3600
+  
+  - name: Ensure ansible groups exists
+    group:
+      name: ansible
+      state: present
 
   - name: Add ansible user
     user:
@@ -47,16 +97,15 @@
       group: root
       mode: 0440
 
-  - name: SSH Keys - Add Ansible
+  - name: SSH Keys
     authorized_key:
-      user: ansible
+      user: "{{ item.user }}"
       state: present
-      key: "{{ secret_ansible_ssh }}"
-  - name: SSH Keys - Add Main User
-    authorized_key:
-      user: "{{ main_username }}"
-      state: present
-      key: "{{ secret_main_user_ssh }}"
+      key: "{{ item.ssh }}"
+    loop:
+      - { user: "{{ main_username }}", ssh: "{{ secret_main_user_ssh }}" }
+      - { user: "{{ main_username }}", ssh: "{{ secret_main_user_alt_ssh }}" }
+      - { user: ansible, ssh: "{{ secret_ansible_ssh }}" }
 
   - name: Add hardened SSH config
     copy:

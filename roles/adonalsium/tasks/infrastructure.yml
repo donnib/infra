@@ -10,65 +10,29 @@
     - ubuntu-20.04-standard_20.04-1_amd64.tar.gz
     - ubuntu-18.04-standard_18.04.1-1_amd64.tar.gz
 
-- name: Create Dominon CT
+- name: Create LXC CT
   proxmox:
-    vmid: '200'
-    hostname: Dominon
-    unprivileged: true
-    onboot: true
+    vmid: "{{item.vmid}}"
+    hostname: "{{item.name}}"
+    unprivileged: "{{item.privileged}}"
+    onboot: "{{item.onboot}}"
     state: present
     node: adonalsium
     storage: local-lvm
-    disk: '10'
-    cores: '2'
-    memory: '512'
-    swap: '512'
+    disk: "{{item.disk}}"
+    cores: "{{item.cores}}"
+    memory: "{{item.memory}}"
+    swap: "{{item.swap}}"
     api_user: root@pam
     api_password: "{{ secret_proxmox_pass }}"
     api_host: localhost
     pubkey: "{{ secret_proxmox_ct_ssh }}"
-    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.15/24,ip6=dhcp,bridge=vmbr0"}'
-    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
-
-- name: Create Honor CT
-  proxmox:
-    vmid: '201'
-    hostname: Honor
-    onboot: true
-    unprivileged: true
-    state: present
-    node: adonalsium
-    storage: local-lvm
-    disk: '10'
-    cores: '1'
-    memory: '512'
-    swap: '512'
-    api_user: root@pam
-    api_password: "{{ secret_proxmox_pass }}"
-    api_host: localhost
-    pubkey: "{{ secret_proxmox_ct_ssh }}"
-    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.16/24,ip6=dhcp,bridge=vmbr0"}'
-    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
-
-- name: Create Valor CT
-  proxmox:
-    vmid: '202'
-    hostname: Valor
-    onboot: false
-    unprivileged: true
-    node: adonalsium
-    state: present
-    storage: local-lvm
-    disk: '10'
-    cores: '1'
-    memory: '512'
-    swap: '512'
-    api_user: root@pam
-    api_password: "{{ secret_proxmox_pass }}"
-    api_host: localhost
-    pubkey: "{{ secret_proxmox_ct_ssh }}"
-    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip=192.168.30.17/24,ip6=dhcp,bridge=vmbr0"}'
-    ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
+    netif: '{"net0":"name=eth0,gw=192.168.30.1,ip={{item.ip}}/24,ip6=dhcp,bridge=vmbr0"}'
+    ostemplate: "{{item.template}}"
+  loop:
+    - { "name":"Dominion","vmid":"200","privileged":"true","onboot":"true","ip":"192.168.30.15","disk":"10","cores":"2","memory":"512","swap":"512","template":"local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz"}
+    - { "name":"Honor","vmid":"201","privileged":"true","onboot":"true","ip":"192.168.30.16","disk":"10","cores":"2","memory":"512","swap":"512","template":"local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz"}
+    - { "name":"Valor","vmid":"202","privileged":"true","onboot":"true","ip":"192.168.30.17","disk":"10","cores":"2","memory":"512","swap":"512","template":"local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz"}
 
 - name: Create Mercy CT
   proxmox:
@@ -92,67 +56,12 @@
     mounts: '{"mp0":"/mnt/Backup/Adonalsium/mercy,mp=/mnt/Backup/"}'
 
 ### Create VMs
-- name: Copy template generator script
-  copy:
-    src: template-generator.sh
-    dest: /root
-    mode: +x
-- name: Run template generator script
-  command: /bin/bash ./template-generator.sh
-  args:
-    chdir: "/root"
-- name: Remove template generator script
-  file:
-    path: /root/template-generator.sh
-    state: absent
-
-- name: Add Bootstrap SSH Key
-  copy:
-    dest: /root/bootstrap
-    owner: root
-    group: root
-    mode: 0600
-    content: "{{ secret_proxmox_ct_ssh }}"
-
-- name: Create VMs
-  proxmox_kvm:
-    node: adonalsium
-    storage: local-lvm
-    format: qcow2
-    timeout: 60
-    api_user: root@pam
-    api_password: "{{ secret_proxmox_pass }}"
-    api_host: localhost
-    clone: ubuntu-template
-    vmid: 9000
-    name: "{{item.name}}"
-    newid: "{{item.vmid}}"
-  with_items:
-    - { "name":"Endowment","vmid":"300"}
-    - { "name":"Autonomy","vmid":"301"}
-    - { "name":"Cultivation","vmid":"302"}
-    - { "name":"Preservation","vmid":"303"}
-
-- name: Adjust VM settings
-  shell: qm set {{item.vmid}} --onboot true --ciuser root --sshkeys /root/bootstrap  --ostype l26 --balloon 512 --ipconfig0 ip={{item.ip}}/24,gw=192.168.30.1 --cores {{item.cores}} --memory {{item.memory}} --startup {{item.order}}
-  with_items:
-    - { "name":"Endowment","vmid":"300","ip":"192.168.30.11","cores":"6","memory":"4096","order":"order=3"}
-    - { "name":"Autonomy","vmid":"301","ip":"192.168.30.12","cores":"6","memory":"4096","order":"order=2"}
-    - { "name":"Cultivation","vmid":"302","ip":"192.168.30.13","cores":"4","memory":"2048","order":"order=4"}
-    - { "name":"Preservation","vmid":"303","ip":"192.168.30.14","cores":"2","memory":"2048","order":"order=1,up=30"}
-
-- name: Resize VMs
-  shell: qm resize {{item.vmid}} scsi0 +{{item.size}}
-  with_items:
-    - { "vmid":"300","size":"75G"}
-    - { "vmid":"301","size":"50G"}
-    - { "vmid":"302","size":"40G"}
-    - { "vmid":"303","size":"40G"}
-
-- name: Remove Bootstrap SSH Key
-  file:
-    dest: /root/bootstrap
-    state: absent
-
-- name: Destroy template
-  shell: qm destroy 9000
+- name: Download Ubuntu ISO
+  get_url:
+    url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
+    dest: /var/lib/vz/template/iso
+#- name: Download and Unzip Opnsense ISO
+#  unarchive:
+#    src: https://mirrors.nycbug.org/pub/opnsense/releases/21.1/OPNsense-21.1-OpenSSL-dvd-amd64.iso.bz2
+#    dest: /var/lib/vz/template/iso
+#    remote_src: yes

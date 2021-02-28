@@ -25,7 +25,7 @@ docker exec wallabag-db sh -c 'exec mysqldump --single-transaction -h localhost 
 #### Hass Backup
 yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
 mv /home/{{main_username}}/db_backups/hass/hassDB.sql /home/{{main_username}}/db_backups/hass/hassDB_$yesterday.sql
-docker exec HASS-db sh -c 'exec mysqldump --single-transaction -h localhost -u hass -p{{ secret_hass_db_pass }} homeassistant' > /home/{{main_username}}/db_backups/hass/hassDB.sql
+docker exec hass-db sh -c 'exec mysqldump --single-transaction -h localhost -u hass -p{{ secret_hass_db_pass }} homeassistant' > /home/{{main_username}}/db_backups/hass/hassDB.sql
 
 #### Delete Old
 find /home/{{main_username}}/db_backups/ -mtime +7 -type f -delete

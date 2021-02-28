@@ -16,7 +16,7 @@
 
 - name: Create traffic bash file
   copy:
-    dest: /home/{{ main_username }}/scripts/traffic.sh
+    dest: /home/{{ main_username }}/scripts/cast_traffic.sh
     owner: "{{ main_username }}"
     group: "{{ main_username }}"
     mode: +x
@@ -34,7 +34,7 @@
 
 - name: Create traffic cast bash file
   copy:
-    dest: /home/{{ main_username }}/scripts/cast_weather.sh
+    dest: /home/{{ main_username }}/scripts/cast_traffic.sh
     owner: "{{ main_username }}"
     group: "{{ main_username }}"
     mode: +x
@@ -191,8 +191,7 @@
   loop:
     - { job: "~/scripts/traffic.sh", name: "Traffic AM", hour: "7-8,16-18", minute: "*/10", weekday: "1-5" }
     - { job: "~/scripts/traffic.sh", name: "Traffic PM", hour: "9-15", minute: "*/30", weekday: "1-5" }
-    - { job: "~/docker/hass_docker/nodered/github_cron.sh", name: "NodeRed Github", hour: "23", minute: "0", weekday: "*" }
-    - { job: "~/git/coppermind-backup/cron_git.sh", name: "Coppermind Github", hour: "0", minute: "15", weekday: "*" }
+    - { job: "~/docker/nodered/github_cron.sh", name: "NodeRed Github", hour: "23", minute: "0", weekday: "*" }
     - { job: "docker container restart grafana", name: "Restart Grafana", hour: "23", minute: "30", weekday: "*" }
 
 - name: "Root Cronjobs"

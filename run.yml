@@ -2,6 +2,10 @@
   - hosts: all
     become: true
     tasks:
+      - name: Set timezone
+        timezone:
+          name: "{{ ntp_timezone }}"
+        when: ansible_distribution == 'Ubuntu'
       - name: Remove Ubuntu motd spam
         file:
           path: "/etc/update-motd.d/{{ item }}"
@@ -38,6 +42,7 @@
       - role: adonalsium
       - role: geerlingguy.nfs
       - role: geerlingguy.docker
+      - role: geerlingguy.ntp
       - role: ironicbadger.ansible_role_docker_compose_generator
       - role: ironicbadger.ansible_role_snapraid
 

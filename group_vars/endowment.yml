@@ -42,33 +42,6 @@ containers:
     hostname:  "{{ hostname }}"
     include_global_env_vars: true
   ###
-  - service_name: emby
-    container_name: emby
-    active: true
-    image: emby/embyserver
-    restart: always
-    ports:
-      - 8096:8096
-    labels:
-      - "diun.enable=true"
-      - "diun.regopt=docker.io"
-    volumes:
-      - "{{ appdata_path }}/emby/config:/config"
-      - /mnt/Media/Movies:/mnt/movies
-      - /mnt/Media/UHD:/mnt/UHD
-      - /mnt/Media/TV Shows:/mnt/tv
-      - /mnt/Media/Kids Movies:/mnt/kids
-      - /mnt/Media/Kids TV:/mnt/kids_tv
-      - /mnt/Media/Parents Movies:/mnt/parents_movies
-      - /mnt/Media/Parents TV:/mnt/parents_tv
-      - "{{ appdata_path }}/emby/backup:/mnt/backup"
-      - "{{ appdata_path }}/emby/transcode:/transcode"
-#    devices:
-#      - /dev/dri/renderD128
-    environment:
-      - GIDLIST=44
-    include_global_env_vars: true
-  ###
   - service_name: radarr
     container_name: radarr
     active: true

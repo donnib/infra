@@ -59,7 +59,7 @@ containers:
       - WEBSOCKET_ENABLED=true # Required to use websockets
       - SIGNUPS_ALLOWED=false # set to false to disable signups
       - LOG_FILE=/data/bitwarden.log
-      - DATABASE_URL="{{ secret_bitwarden_db_url }}"
+      - DATABASE_URL={{ secret_bitwarden_db_url }}
       - ENABLE_DB_WAL=false
     labels:
       - "diun.enable=true"

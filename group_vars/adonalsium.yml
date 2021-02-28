@@ -8,7 +8,6 @@ package_list:
   - name: pve-headers
   - name: git
   - name: nut
-  - name: apcupsd
 
 mergerfs_mount:
   - { path: /mnt/Media }
@@ -22,10 +21,10 @@ data_disks:
   - { path: /mnt/disk3, source: /dev/disk/by-id/ata-ST8000NM0055-1RM112_ZA11KW4B-part1, fs: ext4, opts: defaults, content: true }
   - { path: /mnt/disk4, source: /dev/disk/by-id/ata-ST4000NM0024-1HT178_Z4F06WRN-part1, fs: ext4, opts: defaults, content: true }
   - { path: /mnt/disk5, source: /dev/disk/by-id/ata-WDC_WD60EFRX-68MYMN1_WD-WX21D25R5VX9-part1, fs: ext4, opts: defaults, content: true }
-  - { path: /mnt/disk5, source: /dev/disk/by-id/ata-WDC_WD60EFRX-68MYMN1_WD-WX31D25040NC-part1, fs: ext4, opts: defaults, content: true }
+  - { path: /mnt/disk6, source: /dev/disk/by-id/ata-WDC_WD60EFRX-68MYMN1_WD-WX31D25040NC-part1, fs: ext4, opts: defaults, content: true }
 
 external_disks:
-  - { path: /media/small_external_hdd, source: /dev/disk/by-uuid/681EA7BB1EA78124, fs: ntfs, opts: defaults, content: true }
+  - { path: /media/small_external_hdd, source: /dev/disk/by-uuid/681EA7BB1EA78124, fs: ext4, opts: defaults, content: true }
 
 synology_mountpoints:
   - { path: "/mnt/Backup", source: "192.168.30.25:/volume1/Backup/", fs: nfs, opts: "rw,sync" }
@@ -90,6 +89,33 @@ containers:
       - LOG_LEVEL=info
       - LOG_JSON=false
     hostname:  "{{ hostname }}"
+    include_global_env_vars: true
+  ###
+  - service_name: emby
+    container_name: emby
+    active: true
+    image: emby/embyserver
+    restart: always
+    ports:
+      - 8096:8096
+    labels:
+      - "diun.enable=true"
+      - "diun.regopt=docker.io"
+    volumes:
+      - "{{ appdata_path }}/emby/config:/config"
+      - /mnt/Media/Movies:/mnt/movies
+      - /mnt/Media/UHD:/mnt/UHD
+      - /mnt/Media/TV Shows:/mnt/tv
+      - /mnt/Media/Kids Movies:/mnt/kids
+      - /mnt/Media/Kids TV:/mnt/kids_tv
+      - /mnt/Media/Parents Movies:/mnt/parents_movies
+      - /mnt/Media/Parents TV:/mnt/parents_tv
+      - "{{ appdata_path }}/emby/backup:/mnt/backup"
+      - "{{ appdata_path }}/emby/transcode:/transcode"
+    devices:
+      - /dev/dri/renderD128
+    environment:
+      - GIDLIST=44
     include_global_env_vars: true
   ###
   - service_name: portainer

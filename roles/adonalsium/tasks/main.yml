@@ -37,7 +37,13 @@
     mode: +x
   loop:
     - { src: "backup.sh", dest: "/root/backup.sh" }
-    - { src: "media_backup.sh", dest: "/home/{{ main_username }}/media_backup.sh" }
+
+- name: Copy media backup templates
+  template:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+    mode: +x
+    - { src: "media_backup.sh.j2", dest: "/home/{{ main_username }}/media_backup.sh" }
 
 ### Wireguard
 #- name: Install Wireguard

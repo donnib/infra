@@ -7,6 +7,7 @@ roles:
 - src: geerlingguy.ntp
 - src: geerlingguy.pip
 - src: geerlingguy.nfs
+- src: geerlingguy.samba
 
 collections:
 - community.general

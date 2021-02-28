@@ -39,6 +39,7 @@
       - role: ironicbadger.ansible_role_proxmox_nag_removal
       - role: grog.package
       - role: geerlingguy.pip
+      - role: geerlingguy.samba
       - role: adonalsium
       - role: geerlingguy.nfs
       - role: geerlingguy.docker

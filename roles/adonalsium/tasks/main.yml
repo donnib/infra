@@ -58,6 +58,17 @@
 - name: Set up containers
   include: infrastructure.yml
 
+- name: Install samba config
+  template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+- name: Restart samba
+  service:
+    name: smbd
+    state: restarted
+
 #### NUT
 
 - name: Set Nut Facts

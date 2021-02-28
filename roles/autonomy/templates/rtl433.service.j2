@@ -3,6 +3,7 @@ Description=RTL 433 to MQTT
 After=network-online.target
 
 [Service]
+ExecStartPost=/bin/sleep 30
 User={{main_username}}
 ExecStart=python3 /home/{{main_username}}/scripts/rtl2mqtt.py
 

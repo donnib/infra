@@ -142,6 +142,7 @@ containers:
     active: true
     image: analogj/scrutiny
     restart: always
+    privileged: true
     ports:
       - 8080:8080
     labels:
@@ -151,14 +152,17 @@ containers:
       - "{{ appdata_path }}/scrutiny:/config"
       - /run/udev:/run/udev:ro
     devices:
-      - /dev/sda:/dev/sda
+##### THIS IS LIKELY UNNCESSARY WITH THE PRIVILEGED FLAG
+#      - /dev/sda:/dev/sda # SSD for later
       - /dev/sdb:/dev/sdb
       - /dev/sdc:/dev/sdc
       - /dev/sdd:/dev/sdd
       - /dev/sde:/dev/sde
+      - /dev/sdf:/dev/sdf
       - /dev/sdg:/dev/sdg
       - /dev/sdh:/dev/sdh
-      - /dev/sdi:/dev/sdi
+      - /dev/nvme0n1:/dev/nvme
     cap_add:
       - SYS_RAWIO
+      - SYS_ADMIN
     include_global_env_vars: false

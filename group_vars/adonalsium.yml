@@ -24,7 +24,7 @@ data_disks:
   - { path: /mnt/disk6, source: /dev/disk/by-id/ata-WDC_WD60EFRX-68MYMN1_WD-WX31D25040NC-part1, fs: ext4, opts: defaults, content: true }
 
 external_disks:
-  - { path: /media/small_external_hdd, source: /dev/disk/by-uuid/681EA7BB1EA78124, fs: ext4, opts: defaults, content: true }
+  - { path: /media/small_external_hdd, source: /dev/disk/by-id/usb-WD_My_Passport_0748_575846314533324E55534B35-0:0-part1, fs: ext4, opts: defaults, content: true }
 
 synology_mountpoints:
   - { path: "/mnt/Backup", source: "192.168.30.25:/volume1/Backup/", fs: nfs, opts: "rw,sync" }
@@ -48,6 +48,7 @@ snapraid_email_address_to: "{{ secret_snapraid_email_to }}"
 snapraid_smtp_host: "{{ secret_snapraid_smtp_host }}"
 snapraid_smtp_port: 465
 snapraid_use_ssl: true
+snapraid_touch: false
 snapraid_run_command: "python3 {{ snapraid_run_bin }} -c {{ snapraid_run_conf}}"
 snapraid_cron_jobs:
   - { job: '{{ snapraid_run_command }}', name: 'snapraid_runner', weekday: '*', hour: '04' }
@@ -149,7 +150,7 @@ containers:
       - "diun.enable=true"
       - "diun.regopt=docker.io"
     volumes:
-      - "{{ appdata_path }}/scrutiny:/config"
+      - "{{ appdata_path }}/scrutiny:/scrutiny/config"
       - /run/udev:/run/udev:ro
     devices:
 ##### THIS IS LIKELY UNNCESSARY WITH THE PRIVILEGED FLAG

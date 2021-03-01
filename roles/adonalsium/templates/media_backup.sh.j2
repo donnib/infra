@@ -1,7 +1,7 @@
 #!/bin/bash
 
 yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
-mv /mnt/Backup/Adonalsium/adonalsium_docker.tar.gz /mnt/Backup/adonalsium_docker_$yesterday.tar.gz
+mv /mnt/Backup/Adonalsium/adonalsium_docker.tar.gz /mnt/Backup/Adonalsium/adonalsium_docker_$yesterday.tar.gz
 sudo tar -cvf /mnt/Backup/Adonalsium/adonalsium_docker.tar.gz -C /home/{{ main_username }}/ docker
 
 sudo mount /media/small_external_hdd
@@ -11,4 +11,4 @@ rsync -Aavx --progress --delete /mnt/Media/Music/ /media/small_external_hdd/Musi
 rsync -Aavx --progress --delete /mnt/Media/Audiobooks/ /media/small_external_hdd/Audiobooks
 rsync -Aavx --progress --delete /mnt/Media/Files/ /media/small_external_hdd/Files
 
-rsync -Aavx --progress --delete /mnt/Backup /media/small_external_hdd/Backup
+rsync -Aavx --progress --delete /mnt/Backup /media/small_external_hdd

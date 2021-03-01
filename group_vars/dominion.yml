@@ -9,3 +9,5 @@ package_list:
   - name: sudo
   - name: git
   - name: wget
+
+pull_backup: false

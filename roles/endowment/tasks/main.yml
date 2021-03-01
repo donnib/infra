@@ -20,6 +20,7 @@
     group: "{{ main_username }}"
     mode: "{{item.mode}}"
   with_items:
+    - { path: "auth_commands.sh", mode: "+x" }
     - { path: "nextcloud_cron.sh", mode: "+x" }
 
 - name: Copy backup script templates
@@ -41,13 +42,18 @@
     group: "{{ main_username }}"
 
 #### Restore Folders
+- name: Set Facts
+  set_fact:
+    pull_backup: "{{ pull_backup == true }}"
+
 - name: restore folders from backup
   unarchive:
     src: /mnt/Backup/{{item.src}}
     dest: "/home/{{ main_username }}/{{item.dest}}"
     remote_src: yes
   with_items:
-    - { src: 'docker.tar.gz', dest: '' }
+    - { src: 'docker/docker.tar.gz', dest: '' }
+  when: pull_backup
 
 #### Cronjobs
 - name: "Main User Cronjobs"
@@ -60,7 +66,6 @@
     weekday: "{{ item.weekday }}"
     state: present
   loop:
-    - { job: "docker container restart emby", name: "Restart Emby", hour: "2", minute: "30", weekday: "*" }
     - { job: "/home/{{ main_username }}/scripts/nextcloud_cron.sh", name: "Nextcloud", hour: "*", minute: "*/5", weekday: "*" }
 
 - name: "Root Cronjobs"
@@ -74,3 +79,10 @@
     state: present
   loop:
     - { job: "/home/{{ main_username }}/scripts/media_backup.sh", name: "Media Backup", hour: "0", minute: "5", weekday: "*" }
+
+### SSH
+- name: SSH Keys - Add HASS SSH Key
+  authorized_key:
+    user: "{{ main_username }}"
+    state: present
+    key: "{{ secret_hass_ssh }}"

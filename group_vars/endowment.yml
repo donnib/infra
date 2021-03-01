@@ -20,6 +20,8 @@ nfs_mountpoints:
   - { path: "/mnt/Synology_Photos", source: "192.168.30.25:/volume1/photo/", fs: nfs, opts: "rw,sync" }
   - { path: "/mnt/Media", source: "192.168.30.10:/mnt/Media", fs: nfs, opts: "rw,sync" }
 
+pull_backup: false
+
 ### Docker-Compose with ironicbadger.docker_compose_generator
 appdata_path: "/home/{{ main_username }}/docker"
 containers:

@@ -43,6 +43,7 @@
     src: "{{item.src}}"
     dest: "{{item.dest}}"
     mode: +x
+  with_items:
     - { src: "media_backup.sh.j2", dest: "/home/{{ main_username }}/media_backup.sh" }
 
 ### Wireguard
@@ -109,6 +110,20 @@
     creates: /home/{{main_username}}/nut.sh
   when: install_nut
 
+#### Restore Folders
+- name: Set Facts
+  set_fact:
+    pull_backup: "{{ pull_backup == true }}"
+
+- name: restore folders from backup
+  unarchive:
+    src: /mnt/Backup/{{item.src}}
+    dest: "/home/{{ main_username }}/{{item.dest}}"
+    remote_src: yes
+  with_items:
+    - { src: 'Adonalsium/adonalsium_docker.tar.gz', dest: '' }
+  when: pull_backup
+
 ### Cron
 - name: "Main User Cronjobs"
   cron:
@@ -121,6 +136,7 @@
     state: present
   with_items:
     - { job: "docker exec scrutiny /scrutiny/bin/scrutiny-collector-metrics run", name: "Scrutiny", hour: "*/6", minute: "0", weekday: "*" }
+    - { job: "docker container restart emby", name: "Restart Emby", hour: "2", minute: "30", weekday: "*" }
 
 - name: "Root Cronjobs"
   cron:

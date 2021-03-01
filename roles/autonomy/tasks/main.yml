@@ -140,7 +140,7 @@
 
 #### HASS Git
 
-- name: Set Backup Facts
+- name: Set Facts
   set_fact:
     clone_git: "{{ clone_git == true }}"
     pull_backup: "{{ pull_backup == true }}"
@@ -192,7 +192,6 @@
     - { job: "~/scripts/traffic.sh", name: "Traffic AM", hour: "7-8,16-18", minute: "*/10", weekday: "1-5" }
     - { job: "~/scripts/traffic.sh", name: "Traffic PM", hour: "9-15", minute: "*/30", weekday: "1-5" }
     - { job: "~/docker/nodered/github_cron.sh", name: "NodeRed Github", hour: "23", minute: "0", weekday: "*" }
-    - { job: "docker container restart grafana", name: "Restart Grafana", hour: "23", minute: "30", weekday: "*" }
 
 - name: "Root Cronjobs"
   cron:

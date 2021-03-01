@@ -8,17 +8,17 @@
     - name: host
       prompt: Which host?
       private: no
-    - name: containers
+    - name: containers_to_update
       prompt: Which containers?
       private: no
   tasks:
     - name: Docker Pull
-      command: "docker-compose pull {{containers}}"
+      command: "docker-compose pull {{containers_to_update}}"
       args:
         chdir: /home/{{main_username}}/
 
     - name: Docker Update
-      command: "docker-compose up -d {{containers}}"
+      command: "docker-compose up -d {{containers_to_update}}"
       args:
         chdir: /home/{{main_username}}/
 

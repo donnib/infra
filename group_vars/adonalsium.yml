@@ -35,6 +35,7 @@ fstab_mergerfs:
   - { source: "/mnt/disk*", mountpoint: "/mnt/Media", fs: fuse.mergerfs, opts: "direct_io,defaults,allow_other,minfreespace=50G,fsname=mergerfs" }  
 
 install_nut: false
+pull_backup: false
 
 ### NFS Setup
 nfs_exports: [ "/mnt/Media *(rw,sync,fsid=0,no_root_squash,no_subtree_check)" ]

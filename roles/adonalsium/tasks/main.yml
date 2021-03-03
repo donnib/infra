@@ -47,8 +47,32 @@
     - { src: "media_backup.sh.j2", dest: "/home/{{ main_username }}/media_backup.sh" }
 
 ### Wireguard
-#- name: Install Wireguard
-#  include: wireguard.yml
+- name: Install Wireguard
+  include: wireguard.yml
+  when: install_wireguard == "true"
+
+### Telegraf
+- name: Install Telegraf
+  apt:
+    deb: https://dl.influxdata.com/telegraf/releases/telegraf_{{telegraf_ver}}-1_amd64.deb
+- name: Copy Telegraf config
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: Add Telegraf user to docker group
+  user:
+    name: telegraf
+    groups: docker
+    append: yes
+- name: Enable/Start Telegraf
+  systemd:
+    enabled: true
+    daemon-reload: true
+    state: restarted
+    name: telegraf
 
 ### DIUN
 - name: Copy DIUN Config Template
@@ -59,11 +83,16 @@
     group: "{{ main_username }}"
 
 ### Infrastructure
-- name: Set up disks/mounts
-  include: disks.yml
+- name: Install Mergerfs
+  apt:
+    deb: https://github.com/trapexit/mergerfs/releases/download/{{mergerfs_ver}}/mergerfs_{{mergerfs_ver}}.debian-buster_amd64.deb
+
+#- name: Set up disks/mounts
+#  include: disks.yml
 
 - name: Set up containers
   include: infrastructure.yml
+  when: infrastructure == "true"
 
 - name: Install samba config
   template:
@@ -78,10 +107,6 @@
 
 #### NUT
 
-- name: Set Nut Facts
-  set_fact:
-    install_nut: "{{ install_nut == true }}"
-
 - name: Copy nut folder
   copy:
     src: etc/nut/{{item}}
@@ -94,27 +119,23 @@
     - 'ups.conf'
     - 'upsd.conf'
     - 'upsd.users'
-  when: install_nut
+  when: install_nut == "true"
 
 - name: Copy NUT script
   copy:
     src: nut.sh
     dest: /home/{{main_username}}
     mode: +x
-  when: install_nut
+  when: install_nut == "true"
 
 - name: Run NUT script
   command: /bin/bash ./nut.sh
   args:
     chdir: /home/{{main_username}}
     creates: /home/{{main_username}}/nut.sh
-  when: install_nut
+  when: install_nut == "true"
 
 #### Restore Folders
-- name: Set Facts
-  set_fact:
-    pull_backup: "{{ pull_backup == true }}"
-
 - name: restore folders from backup
   unarchive:
     src: /mnt/Backup/{{item.src}}
@@ -122,7 +143,7 @@
     remote_src: yes
   with_items:
     - { src: 'Adonalsium/adonalsium_docker.tar.gz', dest: '' }
-  when: pull_backup
+  when: pull_backup == "true"
 
 ### Cron
 - name: "Main User Cronjobs"

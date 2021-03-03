@@ -37,6 +37,29 @@
     owner: "{{ main_username }}"
     group: "{{ main_username }}"
 
+### Telegraf
+- name: Install Telegraf
+  apt:
+    deb: https://dl.influxdata.com/telegraf/releases/telegraf_{{telegraf_ver}}-1_amd64.deb
+- name: Copy Telegraf config
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: Add Telegraf user to docker group
+  user:
+    name: telegraf
+    groups: docker
+    append: yes
+- name: Enable/Start Telegraf
+  systemd:
+    enabled: true
+    daemon-reload: true
+    state: restarted
+    name: telegraf
+
 #### Nginx Bash Alias
 
 - name: Setup nginx reload aliases

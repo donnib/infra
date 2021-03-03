@@ -4,8 +4,8 @@
 # wrapper to allow several commands.
 
 case "$SSH_ORIGINAL_COMMAND" in
-    "docker container restart lms")
-        docker container restart lms
+    "docker container restart logitech_media_server")
+        docker container restart logitech_media_server
         ;;
     *)
         echo "Access denied"

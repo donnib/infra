@@ -17,6 +17,29 @@
     - db_backups
     - scripts
 
+### Telegraf
+- name: Install Telegraf
+  apt:
+    deb: https://dl.influxdata.com/telegraf/releases/telegraf_{{telegraf_ver}}-1_amd64.deb
+- name: Copy Telegraf config
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: Add Telegraf user to docker group
+  user:
+    name: telegraf
+    groups: docker
+    append: yes
+- name: Enable/Start Telegraf
+  systemd:
+    enabled: true
+    daemon-reload: true
+    state: restarted
+    name: telegraf
+
 #### DIUN
 - name: Copy DIUN Config Template
   template:
@@ -36,10 +59,6 @@
     - { src: 'db_backup.sh.j2', dest: 'db_backup.sh' }
     - { src: 'db_restore.sh.j2', dest: 'db_restore.sh' }
 
-- name: Set Facts
-  set_fact:
-    pull_backup: "{{ pull_backup == true }}"
-
 #### Restore Folders
 - name: restore folders from backup
   copy:
@@ -49,14 +68,14 @@
     mode: preserve
   with_items:
     - { src: 'db_backups', dest: '' }
-  when: pull_backup
+  when: pull_backup == "true"
 
 #### Restore Databases
 - name: Run DB Restore Script
   command: /bin/bash ./db_restore.sh
   args:
     chdir: "/home/{{main_username}}/scripts"
-  when: pull_backup
+  when: pull_backup == "true"
 
 #### Cronjobs
 - name: "Root Cronjobs"

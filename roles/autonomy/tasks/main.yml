@@ -138,12 +138,30 @@
     owner: "{{ main_username }}"
     group: "{{ main_username }}"
 
-#### HASS Git
+### Telegraf
+- name: Install Telegraf
+  apt:
+    deb: https://dl.influxdata.com/telegraf/releases/telegraf_{{telegraf_ver}}-1_amd64.deb
+- name: Copy Telegraf config
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: Add Telegraf user to docker group
+  user:
+    name: telegraf
+    groups: docker
+    append: yes
+- name: Enable/Start Telegraf
+  systemd:
+    enabled: true
+    daemon-reload: true
+    state: restarted
+    name: telegraf
 
-- name: Set Facts
-  set_fact:
-    clone_git: "{{ clone_git == true }}"
-    pull_backup: "{{ pull_backup == true }}"
+#### HASS Git
 
 - name: Clone HASS GitHub Repo
   git:
@@ -151,7 +169,7 @@
     dest: /home/{{ main_username }}/hass_docker
     accept_hostkey: true
     key_file: /home/{{main_username}}/.ssh/github
-  when: clone_git
+  when: clone_git == "true"
 
 - name: Clone NodeRed GitHub Repo
   git:
@@ -159,11 +177,7 @@
     dest: /home/{{ main_username }}/docker/nodered
     accept_hostkey: true
     key_file: /home/{{main_username}}/.ssh/github
-  when: clone_git
-
-### Setup traffic image stuff (MAY NOT NEED)
-#- name: Set to use right profile
-#  command: export XDG_RUNTIME_DIR=/run/user/{{main_uid}}
+  when: clone_git == "true"
 
 ### Backup Restore
 
@@ -176,7 +190,7 @@
     - { src: 'docker.tar.gz', dest: '' }
     - { src: 'hass_docker_beta.tar.gz', dest: '' }
     - { src: 'hass_docker.tar.gz', dest: '' }
-  when: pull_backup
+  when: pull_backup == "true"
 
 ### Cronjobs
 - name: "Main User Cronjobs"

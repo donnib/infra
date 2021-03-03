@@ -4,7 +4,6 @@ hostname: adonalsium
 
 ### Install packages with grog.package
 package_list:
-  - name: mergerfs
   - name: pve-headers
   - name: git
   - name: nut
@@ -34,8 +33,12 @@ synology_mountpoints:
 fstab_mergerfs:
   - { source: "/mnt/disk*", mountpoint: "/mnt/Media", fs: fuse.mergerfs, opts: "direct_io,defaults,allow_other,minfreespace=50G,fsname=mergerfs" }  
 
+### Variables
 install_nut: false
 pull_backup: false
+infrastructure: false
+install_wireguard: false
+mergerfs_ver: 2.32.4
 
 ### NFS Setup
 nfs_exports: [ "/mnt/Media *(rw,sync,fsid=0,no_root_squash,no_subtree_check)" ]

@@ -1,5 +1,5 @@
 #! bin/sh
 
-sudo upsdrvctl stop
-sudo upsdrvctl start
-sudo upsd
+upsdrvctl stop
+upsdrvctl start
+upsd

@@ -50,30 +50,10 @@
 - name: Set up disks/mounts
   include: disks.yml
 
-### Install Netdata
-- name: Download the installation script
-  get_url:
-    url: https://my-netdata.io/kickstart.sh
-    dest: ~/kickstart.sh
-    mode: +x
+- name: Update pveam
+  command: pveam update
 
-- name: Install Netdata
-  command: ~/kickstart.sh --dont-wait
-
-- name: Cleanup installation script
-  file:
-    path: ~/kickstart.sh
-    state: absent
-
-- name: Netdata configuration
-  template:
-    src: templates/netdata.conf.j2
-    dest: /etc/netdata/netdata.conf
-    owner: root
-    group: root
-    mode: u=wrx,g=rx,o=r,+x
-
-- name: Restart Netdata
-  service:
-    name: netdata
-    state: restarted
+- name: Download container templates
+  command: pveam download local {{item}}
+  with_items:
+    - ubuntu-20.04-standard_20.04-1_amd64.tar.gz

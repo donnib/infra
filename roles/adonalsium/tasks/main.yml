@@ -87,8 +87,8 @@
   apt:
     deb: https://github.com/trapexit/mergerfs/releases/download/{{mergerfs_ver}}/mergerfs_{{mergerfs_ver}}.debian-buster_amd64.deb
 
-#- name: Set up disks/mounts
-#  include: disks.yml
+- name: Set up disks/mounts
+  include: disks.yml
 
 - name: Set up containers
   include: infrastructure.yml

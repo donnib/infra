@@ -24,7 +24,6 @@ package_list:
 
 nfs_mountpoints:
   - { path: "/mnt/Backup", source: "192.168.30.25:/volume1/Backup/Adonalsium/autonomy", fs: nfs, opts: "rw,sync" }
-  - { path: "/mnt/Media", source: "192.168.30.10:/mnt/Media", fs: nfs, opts: "ro,sync" }
 
 clone_git: false
 pull_backup: false

@@ -1,8 +1,9 @@
 #!/bin/bash
 
 yesterday=$(date -d "$date -1 days" +"%Y_%m_%d")
-mv /mnt/Backup/Adonalsium/adonalsium_docker.tar.gz /mnt/Backup/Adonalsium/adonalsium_docker_$yesterday.tar.gz
-sudo tar -cvf /mnt/Backup/Adonalsium/adonalsium_docker.tar.gz -C /home/{{ main_username }}/ docker
+mv /mnt/Backup/Adonalsium/adonalsium/adonalsium_docker.tar.gz /mnt/Backup/Adonalsium/adonalsium/adonalsium_docker_$yesterday.tar.gz
+sudo tar -cvf /mnt/Backup/Adonalsium/adonalsium/adonalsium_docker.tar.gz -C /home/{{ main_username }}/ docker
+find /mnt/Backup/Adonalsium/adonalsium -mtime +3 -type f -delete
 
 sudo mount /media/small_external_hdd
 

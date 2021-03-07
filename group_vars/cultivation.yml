@@ -44,7 +44,7 @@ containers:
   - service_name: bitwarden
     container_name: bitwarden
     active: true
-    image: bitwardenrs/server-mysql:latest
+    image: bitwardenrs/server:latest
     restart: always
     ports:
       - 6482:80
@@ -165,6 +165,20 @@ containers:
       - "diun.enable=true"
       - "diun.regopt=docker.io"
     include_global_env_vars: false
+  ###
+  - service_name: organizr
+    container_name: organizr
+    active: true
+    image: organizr/organizr:latest
+    restart: always
+    ports:
+      - 5100:80
+    volumes:
+      - "{{ appdata_path }}/organizr:/config"
+    labels:
+      - "diun.enable=true"
+      - "diun.regopt=docker.io"
+    include_global_env_vars: true
   ###
   - service_name: unifi-controller
     container_name: unifi-controller

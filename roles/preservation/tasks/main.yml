@@ -78,9 +78,9 @@
   when: pull_backup == "true"
 
 #### Cronjobs
-- name: "Root Cronjobs"
+- name: "Main User Cronjobs"
   cron:
-    user: root
+    user: "{{ main_username }}"
     name: "{{ item.name }}"
     job: "{{ item.job }}"
     hour: "{{ item.hour }}"

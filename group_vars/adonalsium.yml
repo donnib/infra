@@ -7,6 +7,7 @@ package_list:
   - name: pve-headers
   - name: git
   - name: nut
+  - name: fail2ban
 
 mergerfs_mount:
   - { path: /mnt/Media }
@@ -118,9 +119,9 @@ containers:
       - "{{ appdata_path }}/emby/backup:/mnt/backup"
       - "{{ appdata_path }}/emby/transcode:/transcode"
     devices:
-      - /dev/dri/renderD128
+      - /dev/dri:/dev/dri
     environment:
-      - GIDLIST=44
+      - GIDLIST=44,108
     include_global_env_vars: true
   ###
   - service_name: portainer

@@ -38,6 +38,7 @@
     roles:
       - role: ironicbadger.ansible_role_proxmox_nag_removal
       - role: grog.package
+      - role: install_fail2ban
       - role: geerlingguy.pip
       - role: geerlingguy.samba
       - role: adonalsium
@@ -133,6 +134,7 @@
     roles:
       - role: grog.package
       - role: valor
+      - role: install_fail2ban
 #      - role: geerlingguy.ntp
 
   - hosts: mercy
